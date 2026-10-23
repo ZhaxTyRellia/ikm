@@ -115,7 +115,7 @@
 
   <div id="content">
     <section class="survey-card-shell">
-      <div class="title-fieldset">SURVEI KEPUASAN MASYARAKAT (SUARA RAKYAT)</div>
+      <div class="title-fieldset">SURVEI KEPUASAN PELAYANAN MASYARAKAT</div>
       <form id="surveyForm" action="<?= $basePath ?>/survey?id=<?= urlencode((string) $counter) ?>" method="post">
         <input type="hidden" name="counter" value="<?= htmlspecialchars((string) $counter, ENT_QUOTES, 'UTF-8') ?>">
         <div class="container">
@@ -142,24 +142,24 @@
             <?php $stepIndex++; ?>
           <?php endforeach; ?>
 
-          <!-- Langkah Terakhir: Tulis Catatan / Feedback untuk Operator (Wajib tampil di akhir radio, tapi tidak required / boleh di-skip) -->
+          <!-- Langkah Terakhir: Kritik & Saran -->
           <div class="form-step">
             <div style="text-align:center;">
-              <span class="step-badge" style="background:#0f766e;">Langkah Terakhir: Catatan Feedback (Opsional)</span>
+              <span class="step-badge" style="background:#0f766e;">Kritik &amp; Saran</span>
             </div>
-            <h2>Tulis Catatan / Feedback untuk <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></h2>
+            <h2>Kritik dan Saran untuk <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></h2>
             <p style="text-align:center;font-family:sans-serif;color:#475569;margin-top:-8px;margin-bottom:14px;font-size:14px;">
-              Berikan kritik, saran, atau apresiasi untuk operator ini (boleh dilewati / langsung kirim jika tidak ingin mengetik).
+              Masukan Anda sangat berharga bagi peningkatan kualitas pelayanan kami.
             </p>
             <input type="text" id="suggestionInput" name="suggestion" class="form-control"
-              placeholder="Tulis catatan feedback Anda di sini (opsional / boleh dikosongkan)..."
-              aria-label="Catatan dan feedback">
+              placeholder="Tuliskan kritik atau saran Anda di sini..."
+              aria-label="Kritik dan saran">
             <div class="feedback-actions">
               <button type="submit" name="submit" value="Submit" class="btn-submit-survey" onclick="play()">
-                Kirim Survei &amp; Feedback
+                Kirim Penilaian
               </button>
               <button type="submit" name="skip_feedback" value="1" class="btn-skip-feedback" onclick="skipAndSubmit()">
-                Lewati Catatan (Skip) &amp; Kirim
+                Lewati &amp; Kirim
               </button>
               <audio id="audio" src="<?= $basePath ?>/audio/thankyou.mp3"></audio>
             </div>

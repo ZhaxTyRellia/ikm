@@ -373,51 +373,49 @@
         ?>
         <img src="<?= htmlspecialchars($companyLogo, ENT_QUOTES, 'UTF-8') ?>" alt="Logo Instansi" class="welcome-logo" />
         <div>
-            <span class="welcome-pill">&#9733; Portal Survei Kepuasan Masyarakat (IKM)</span>
+            <span class="welcome-pill">&#9733; Survei Indeks Kepuasan Masyarakat</span>
         </div>
-        <h1 class="welcome-title">Suara Rakyat &amp; Polling Kualitas Pelayanan</h1>
+        <h1 class="welcome-title">Layanan Penilaian Kepuasan Pelayanan Publik</h1>
         <p class="welcome-desc">
-            Selamat datang di sistem evaluasi pelayanan publik. Berikan penilaian objektif Anda terhadap kinerja setiap
-            <strong>Operator Pelayanan</strong> kami. Hasil survei langsung diakumulasikan menjadi
-            <strong>Rating Bintang</strong> sebagai penanda kualitas layanan operator terkait.
+            Selamat datang di Portal Survei Kepuasan Masyarakat. Partisipasi dan penilaian objektif Anda sangat berarti bagi kami dalam meningkatkan mutu, profesionalisme, serta kenyamanan pelayanan publik.
         </p>
 
         <div class="welcome-steps">
             <div class="welcome-step-item">
-                <strong>1. Pilih Operator</strong>
-                <span>Klik salah satu kartu profil operator di bawah sesuai loket pelayanan.</span>
+                <strong>1. Pilih Petugas Layanan</strong>
+                <span>Pilih petugas atau loket pelayanan pada daftar di bawah ini.</span>
             </div>
             <div class="welcome-step-item">
-                <strong>2. Beri Penilaian</strong>
-                <span>Jawab pertanyaan pilihan kepuasan sesuai konfigurasi operator.</span>
+                <strong>2. Berikan Penilaian</strong>
+                <span>Pilih tingkat kepuasan sesuai pengalaman pelayanan yang Anda terima.</span>
             </div>
             <div class="welcome-step-item">
-                <strong>3. Catatan Feedback</strong>
-                <span>Tulis saran untuk operator di akhir survei (opsional / bisa di-skip).</span>
+                <strong>3. Sampaikan Masukan</strong>
+                <span>Tuliskan kritik dan saran membangun demi peningkatan kualitas layanan.</span>
             </div>
         </div>
 
         <a href="#daftar-operator" class="btn-scroll-operators">
-            <span>Pilih Operator &amp; Mulai Survei</span>
+            <span>Mulai Penilaian Layanan</span>
             <span>&darr;</span>
         </a>
     </div>
 
     <a href="#daftar-operator" class="scroll-hint">
-        Gulir ke bawah untuk melihat daftar operator &#8595;
+        Gulir ke bawah untuk memilih petugas pelayanan &#8595;
     </a>
 </section>
 
 <!-- 2. COMPACT THUMBNAIL GRID OPERATOR -->
 <section id="daftar-operator" class="operator-section">
     <div class="section-header">
-        <h2>Daftar Target Operator Pelayanan</h2>
-        <p>Pilih profil operator untuk mengisi survei. Rating bintang menunjukkan akumulasi penilaian masyarakat.</p>
+        <h2>Daftar Petugas &amp; Unit Pelayanan</h2>
+        <p>Silakan pilih petugas atau unit pelayanan di bawah ini untuk memberikan penilaian kepuasan layanan.</p>
     </div>
 
     <?php if (empty($operators)): ?>
         <div class="alert alert-info text-center">
-            Belum ada profil Operator yang ditambahkan oleh Admin.
+            Belum ada data petugas pelayanan yang tersedia saat ini.
         </div>
     <?php else: ?>
         <div class="thumb-grid">
@@ -429,7 +427,6 @@
                 $starsFilled = (int) ($op['stars_filled'] ?? 0);
                 $starRating  = number_format((float) ($op['star_rating'] ?? 0), 1);
                 $totalSuara  = (int) ($op['total_suara'] ?? 0);
-                $qCount      = (int) ($op['question_count'] ?? 0);
                 $stClass     = 'bg-st-' . ($op['status_class'] ?? 'secondary');
                 ?>
                 <div class="op-thumb">
@@ -444,28 +441,28 @@
                         <?= htmlspecialchars((string) ($op['address'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>
                     </div>
 
-                    <div class="op-thumb-stars" title="Rating <?= $starRating ?> / 5.0">
+                    <div class="op-thumb-stars" title="Indeks Kepuasan <?= $starRating ?> / 5.0">
                         <?php for ($s = 1; $s <= 5; $s++): ?>
                             <span class="<?= $s <= $starsFilled ? 'star-on' : 'star-off' ?>">&#9733;</span>
                         <?php endfor; ?>
                     </div>
 
                     <div class="op-thumb-rating-row">
-                        <span class="op-thumb-score"><?= $starRating ?>/5</span>
+                        <span class="op-thumb-score"><?= $starRating ?> / 5.0</span>
                         <span class="op-thumb-badge <?= htmlspecialchars($stClass, ENT_QUOTES, 'UTF-8') ?>">
                             <?= htmlspecialchars((string) ($op['status_label'] ?? 'Belum Dinilai'), ENT_QUOTES, 'UTF-8') ?>
                         </span>
                     </div>
 
                     <div class="op-thumb-meta">
-                        <div><strong><?= $totalSuara ?></strong> Disurvei &bull; <strong><?= $qCount ?></strong> Soal</div>
+                        <div><strong><?= $totalSuara ?></strong> Responden</div>
                         <div class="text-truncate" title="<?= htmlspecialchars((string) ($op['mobile'] ?: $op['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>">
                             <?= htmlspecialchars((string) ($op['mobile'] ?: $op['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     </div>
 
                     <a href="<?= $basePath ?>/survey?id=<?= urlencode((string) $op['id']) ?>" class="op-thumb-btn">
-                        Mulai Survei &rarr;
+                        Beri Penilaian &rarr;
                     </a>
                 </div>
             <?php endforeach; ?>
@@ -473,19 +470,12 @@
     <?php endif; ?>
 </section>
 
-<!-- 3. FOOTER DENGAN TOMBOL LOGIN SAMAR DI KANAN -->
+<!-- 3. FOOTER DENGAN TOMBOL LOGIN SAMAR DI KANAN (TANPA MARQUEE) -->
 <footer class="site-footer">
     <div class="site-footer-inner">
-        <div style="flex: 1; min-width: 240px;">
-            <div>
-                <strong><?= htmlspecialchars((string) ($settings['footer_text'] ?? 'Portal Survei IKM & Suara Rakyat'), ENT_QUOTES, 'UTF-8') ?></strong>
-                &copy; <?= date('Y') ?> All Rights Reserved.
-            </div>
-            <?php if (!empty($settings['marquee_text'])): ?>
-                <div style="margin-top: 4px; color: #cbd5e1; font-size: 11.5px;">
-                    <marquee scrollamount="5"><?= htmlspecialchars((string) $settings['marquee_text'], ENT_QUOTES, 'UTF-8') ?></marquee>
-                </div>
-            <?php endif; ?>
+        <div>
+            <strong><?= htmlspecialchars((string) ($settings['footer_text'] ?? 'Portal Survei Indeks Kepuasan Masyarakat'), ENT_QUOTES, 'UTF-8') ?></strong>
+            &copy; <?= date('Y') ?>. Hak Cipta Dilindungi.
         </div>
         <div>
             <?php if (!empty($isAdmin)): ?>

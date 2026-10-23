@@ -231,14 +231,14 @@ $companyLogo = !empty($settings['company_logo'])
     <div class="admin-topbar-inner">
         <a href="<?= $basePath ?>/admin/home" class="brand-box">
             <img src="<?= htmlspecialchars($companyLogo, ENT_QUOTES, 'UTF-8') ?>" alt="Logo" />
-            <span>Dashboard Management IKM</span>
+            <span>Panel Pengelola Survei IKM</span>
         </a>
         <nav class="nav-links">
-            <a href="<?= $basePath ?>/admin/home" class="<?= ($activeMenu ?? 'home') === 'home' ? 'active' : '' ?>">Management Operator</a>
-            <a href="<?= $basePath ?>/admin/account_add" class="<?= ($activeMenu ?? '') === 'account_add' ? 'active' : '' ?>">+ Tambah Operator</a>
-            <a href="<?= $basePath ?>/admin/settings" class="<?= ($activeMenu ?? '') === 'settings' ? 'active' : '' ?>">Pengaturan Logo &amp; Footer</a>
-            <a href="<?= $basePath ?>/" target="_blank" style="border: 1px solid rgba(255,255,255,0.25);">Lihat Home &nearr;</a>
-            <a href="<?= $basePath ?>/logout" style="background:#dc2626;color:#fff;">Logout</a>
+            <a href="<?= $basePath ?>/admin/home" class="<?= ($activeMenu ?? 'home') === 'home' ? 'active' : '' ?>">Data Petugas</a>
+            <a href="<?= $basePath ?>/admin/account_add" class="<?= ($activeMenu ?? '') === 'account_add' ? 'active' : '' ?>">+ Tambah Petugas</a>
+            <a href="<?= $basePath ?>/admin/settings" class="<?= ($activeMenu ?? '') === 'settings' ? 'active' : '' ?>">Pengaturan</a>
+            <a href="<?= $basePath ?>/" target="_blank" style="border: 1px solid rgba(255,255,255,0.25);">Lihat Beranda &nearr;</a>
+            <a href="<?= $basePath ?>/logout" style="background:#dc2626;color:#fff;">Keluar</a>
         </nav>
     </div>
 </header>
@@ -264,8 +264,8 @@ $companyLogo = !empty($settings['company_logo'])
         ?>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h4 class="font-weight-bold mb-1">Atur Pertanyaan Dinamis (1–10): <?= htmlspecialchars($operator['name'] ?? "Operator {$counter}") ?></h4>
-                <p class="text-muted small mb-0">Pilih jumlah pertanyaan (1 s/d 10) sesuai kebutuhan operator, ditambah 1 langkah Catatan Feedback otomatis di akhir.</p>
+                <h4 class="font-weight-bold mb-1">Pengaturan Pertanyaan Survei: <?= htmlspecialchars($operator['name'] ?? "Petugas {$counter}") ?></h4>
+                <p class="text-muted small mb-0">Tentukan jumlah serta isi pertanyaan kuesioner untuk petugas pelayanan ini.</p>
             </div>
             <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">&larr; Kembali</a>
         </div>
@@ -277,13 +277,13 @@ $companyLogo = !empty($settings['company_logo'])
 
                     <div class="form-group row align-items-center bg-light p-3 rounded border mb-3 mx-0">
                         <label for="questionCountSelect" class="col-md-5 col-form-label font-weight-bold mb-2 mb-md-0">
-                            Jumlah Pertanyaan Radio Operator Ini:
+                            Jumlah Pertanyaan Kuesioner:
                         </label>
                         <div class="col-md-4">
                             <select id="questionCountSelect" name="question_count" class="form-control form-control-sm font-weight-bold">
                                 <?php for ($i = 1; $i <= 10; $i++): ?>
                                     <option value="<?= $i ?>" <?= $i === $currentCount ? 'selected' : '' ?>>
-                                        <?= $i ?> Pertanyaan Radio (+ 1 Feedback Akhir)
+                                        <?= $i ?> Pertanyaan
                                     </option>
                                 <?php endfor; ?>
                             </select>
@@ -303,7 +303,7 @@ $companyLogo = !empty($settings['company_logo'])
                                  data-q-index="<?= $i ?>"
                                  style="<?= $isVisible ? '' : 'display: none;' ?> background: #fff;">
                                 <label class="small font-weight-bold text-primary mb-1" for="qInput<?= $i ?>">
-                                    Pertanyaan Radio #<?= $i ?>
+                                    Pertanyaan <?= $i ?>
                                 </label>
                                 <input type="text"
                                        id="qInput<?= $i ?>"
@@ -316,7 +316,7 @@ $companyLogo = !empty($settings['company_logo'])
                     </div>
 
                     <div class="alert alert-info small mt-3 mb-3">
-                        <strong>+ Langkah Terakhir Otomatis (Catatan Feedback):</strong> Setelah radio pertanyaan terakhir, halaman survei selalu menampilkan kotak teks <em>Catatan / Feedback untuk Operator</em> yang bersifat opsional (pengunjung dapat menekan <strong>Lewati / Skip</strong> dan seluruh jawaban tetap masuk ke database).
+                        <strong>Catatan:</strong> Pada bagian akhir kuesioner, halaman pengisian Kritik &amp; Saran akan ditampilkan secara otomatis kepada responden.
                     </div>
 
                     <div class="text-right">
@@ -366,14 +366,14 @@ $companyLogo = !empty($settings['company_logo'])
         ?>
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <div>
-                <h4 class="font-weight-bold mb-1">Hasil Survei &amp; Feedback: <?= htmlspecialchars($opName) ?></h4>
+                <h4 class="font-weight-bold mb-1">Laporan Hasil Survei: <?= htmlspecialchars($opName) ?></h4>
                 <p class="text-muted small mb-0">
-                    Unit: <strong><?= htmlspecialchars((string) ($operator['address'] ?? '-')) ?></strong> &bull;
-                    Konfigurasi: <strong><?= $qCount ?> Pertanyaan + 1 Feedback</strong>
+                    Unit Pelayanan: <strong><?= htmlspecialchars((string) ($operator['address'] ?? '-')) ?></strong> &bull;
+                    Jumlah Kuesioner: <strong><?= $qCount ?> Pertanyaan</strong>
                 </p>
             </div>
             <div class="d-flex" style="gap: 8px;">
-                <a href="<?= $exportUrl ?>" class="btn btn-success btn-sm font-weight-bold">Export Excel (.xls)</a>
+                <a href="<?= $exportUrl ?>" class="btn btn-success btn-sm font-weight-bold">Unduh Laporan (.xls)</a>
                 <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">&larr; Kembali</a>
             </div>
         </div>
@@ -463,13 +463,13 @@ $companyLogo = !empty($settings['company_logo'])
         </div>
 
     <?php elseif (($section ?? '') === 'account_form'): ?>
-        <!-- SECTION: TAMBAH / EDIT PROFIL TARGET OPERATOR (MURNI UNTUK DISURVEI, TANPA LOGIN) -->
+        <!-- SECTION: TAMBAH / EDIT PROFIL PETUGAS -->
         <div class="row justify-content-center">
             <div class="col-lg-7">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h4 class="font-weight-bold mb-0"><?= !empty($isEdit) ? 'Edit Profil Target Operator' : 'Tambah Target Operator Baru' ?></h4>
-                        <p class="text-muted small mb-0">Data identitas lengkap operator ini ditampilkan pada Home untuk disurvei oleh pengunjung.</p>
+                        <h4 class="font-weight-bold mb-0"><?= !empty($isEdit) ? 'Ubah Data Petugas Layanan' : 'Tambah Data Petugas Layanan' ?></h4>
+                        <p class="text-muted small mb-0">Lengkapi informasi identitas petugas pelayanan di bawah ini.</p>
                     </div>
                     <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">&larr; Kembali</a>
                 </div>
@@ -480,26 +480,26 @@ $companyLogo = !empty($settings['company_logo'])
                                 <input type="hidden" name="id" value="<?= htmlspecialchars((string) ($account['id'] ?? '')) ?>" />
                             <?php endif; ?>
                             <div class="form-group">
-                                <label class="small font-weight-bold">Nama Lengkap Operator / Petugas Loket</label>
+                                <label class="small font-weight-bold">Nama Lengkap Petugas</label>
                                 <input type="text" name="name" class="form-control form-control-sm" required
                                        placeholder="Contoh: Budi Santoso, S.AP"
                                        value="<?= htmlspecialchars((string) ($account['name'] ?? '')) ?>" />
                             </div>
                             <div class="form-group">
-                                <label class="small font-weight-bold">Unit Kerja / Loket / Alamat</label>
+                                <label class="small font-weight-bold">Unit Pelayanan / Jabatan</label>
                                 <input type="text" name="address" class="form-control form-control-sm" required
                                        placeholder="Contoh: Loket Pelayanan Administrasi Terpadu 1"
                                        value="<?= htmlspecialchars((string) ($account['address'] ?? '')) ?>" />
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Email</label>
+                                    <label class="small font-weight-bold">Alamat Email</label>
                                     <input type="email" name="email" class="form-control form-control-sm"
-                                           placeholder="operator@instansi.go.id"
+                                           placeholder="petugas@instansi.go.id"
                                            value="<?= htmlspecialchars((string) ($account['email'] ?? '')) ?>" />
                                 </div>
                                 <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">No. HP / WhatsApp</label>
+                                    <label class="small font-weight-bold">Nomor Telepon / HP</label>
                                     <input type="text" name="mobile" class="form-control form-control-sm"
                                            placeholder="0812xxxxxxxx"
                                            value="<?= htmlspecialchars((string) ($account['mobile'] ?? '')) ?>" />
@@ -507,7 +507,7 @@ $companyLogo = !empty($settings['company_logo'])
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Foto Profil Operator</label>
+                                    <label class="small font-weight-bold">Foto Profil Petugas</label>
                                     <?php if (!empty($isEdit) && !empty($account['photo'])): ?>
                                         <div class="mb-2">
                                             <img src="<?= $basePath . '/' . ltrim(htmlspecialchars((string) $account['photo']), '/') ?>"
@@ -518,10 +518,10 @@ $companyLogo = !empty($settings['company_logo'])
                                 </div>
                                 <?php if (empty($isEdit)): ?>
                                 <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Jumlah Pertanyaan Awal (1–10)</label>
+                                    <label class="small font-weight-bold">Jumlah Pertanyaan Kuesioner</label>
                                     <select name="question_count" class="form-control form-control-sm font-weight-bold">
                                         <?php for ($i = 1; $i <= 10; $i++): ?>
-                                            <option value="<?= $i ?>" <?= $i === 4 ? 'selected' : '' ?>><?= $i ?> Pertanyaan + 1 Feedback</option>
+                                            <option value="<?= $i ?>" <?= $i === 4 ? 'selected' : '' ?>><?= $i ?> Pertanyaan</option>
                                         <?php endfor; ?>
                                     </select>
                                 </div>
@@ -529,7 +529,7 @@ $companyLogo = !empty($settings['company_logo'])
                             </div>
                             <div class="text-right pt-2 border-top">
                                 <a href="<?= $basePath ?>/admin/home" class="btn btn-secondary btn-sm">Batal</a>
-                                <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">Simpan Operator</button>
+                                <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">Simpan Data</button>
                             </div>
                         </form>
                     </div>
@@ -538,13 +538,13 @@ $companyLogo = !empty($settings['company_logo'])
         </div>
 
     <?php elseif (($section ?? '') === 'settings'): ?>
-        <!-- SECTION: PENGATURAN LOGO PERUSAHAAN SETEMPAT & TULISAN FOOTER MARQUEE -->
+        <!-- SECTION: PENGATURAN INSTANSI -->
         <div class="row justify-content-center">
             <div class="col-lg-7">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h4 class="font-weight-bold mb-0">Pengaturan Logo Instansi &amp; Teks Footer Marquee</h4>
-                        <p class="text-muted small mb-0">Ubah gambar logo perusahaan/instansi setempat serta teks berjalan (marquee) pada footer survei dan halaman utama.</p>
+                        <h4 class="font-weight-bold mb-0">Pengaturan Instansi</h4>
+                        <p class="text-muted small mb-0">Kelola identitas logo instansi, teks informasi berjalan pada halaman survei, serta nama instansi pada footer.</p>
                     </div>
                     <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">&larr; Kembali</a>
                 </div>
@@ -552,26 +552,26 @@ $companyLogo = !empty($settings['company_logo'])
                     <div class="card-body p-4">
                         <form action="<?= $basePath ?>/admin/settings" method="post" enctype="multipart/form-data">
                             <div class="form-group">
-                                <label class="small font-weight-bold d-block">Gambar Logo Perusahaan / Instansi Setempat Saat Ini</label>
+                                <label class="small font-weight-bold d-block">Logo Instansi Saat Ini</label>
                                 <div class="p-3 bg-dark rounded d-inline-block mb-2">
                                     <img src="<?= htmlspecialchars($companyLogo, ENT_QUOTES, 'UTF-8') ?>"
-                                         alt="Logo Perusahaan"
+                                         alt="Logo Instansi"
                                          style="max-height: 64px; width: auto; object-fit: contain;" />
                                 </div>
                                 <input type="file" name="company_logo" accept="image/*" class="form-control-file small mt-1" />
-                                <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengganti gambar logo saat ini. (Favicon tetap menggunakan <code>favicon.png</code>).</small>
+                                <small class="form-text text-muted">Pilih file gambar baru apabila ingin memperbarui logo instansi.</small>
                             </div>
 
                             <div class="form-group">
-                                <label class="small font-weight-bold">Tulisan Running Text (Marquee) di Footer Survei &amp; Home</label>
+                                <label class="small font-weight-bold">Teks Informasi Berjalan (Footer Halaman Survei)</label>
                                 <textarea name="marquee_text" rows="2" class="form-control form-control-sm" required
-                                          placeholder="Contoh: Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami."><?= htmlspecialchars((string) ($settings['marquee_text'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                                          placeholder="Contoh: Terima kasih atas partisipasi dan penilaian Anda demi peningkatan mutu pelayanan kami."><?= htmlspecialchars((string) ($settings['marquee_text'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label class="small font-weight-bold">Nama Instansi / Judul Footer</label>
+                                <label class="small font-weight-bold">Nama Instansi / Teks Footer</label>
                                 <input type="text" name="footer_text" class="form-control form-control-sm" required
-                                       placeholder="Contoh: Portal Survei IKM & Suara Rakyat"
+                                       placeholder="Contoh: Portal Survei Indeks Kepuasan Masyarakat"
                                        value="<?= htmlspecialchars((string) ($settings['footer_text'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
                             </div>
 
@@ -583,18 +583,17 @@ $companyLogo = !empty($settings['company_logo'])
                     </div>
                 </div>
 
-                <!-- FITUR RESET DATABASE (KEMBALI FRESH SEPERTI BARU) -->
+                <!-- FITUR RESET DATA -->
                 <div class="card border-danger shadow-sm mt-4" style="border-width: 1px;">
                     <div class="card-body p-4">
-                        <h5 class="font-weight-bold text-danger mb-1">Reset / Nolkan Database (Kembali Fresh Seperti Baru)</h5>
+                        <h5 class="font-weight-bold text-danger mb-1">Atur Ulang Data Sistem (Reset Data)</h5>
                         <p class="text-muted small mb-3">
-                            Fitur ini <strong>khusus me-reset database saja</strong> (mengimpor ulang migrasi &amp; seed <code>ikm.sql</code>).
-                            Seluruh perolehan suara survei, catatan feedback, daftar operator, pertanyaan, dan pengaturan akan dikembalikan ke kondisi awal bawaan seperti baru diinstal tanpa menghapus file aplikasi.
+                            Tindakan ini akan mengembalikan seluruh data hasil survei, daftar petugas, pertanyaan kuesioner, dan pengaturan instansi ke kondisi awal.
                         </p>
                         <form action="<?= $basePath ?>/admin/reset_database" method="post"
-                              onsubmit="return confirm('PERINGATAN: Anda yakin ingin me-reset/menolkan seluruh isi database kembali fresh seperti baru?');">
+                              onsubmit="return confirm('Apakah Anda yakin ingin mengatur ulang seluruh data kembali ke kondisi awal?');">
                             <button type="submit" class="btn btn-danger btn-sm px-4 font-weight-bold">
-                                Reset Database ke Awal Sekarang
+                                Atur Ulang Data ke Kondisi Awal
                             </button>
                         </form>
                     </div>
@@ -603,14 +602,14 @@ $companyLogo = !empty($settings['company_logo'])
         </div>
 
     <?php else: ?>
-        <!-- DEFAULT SECTION: DASHBOARD MANAGEMENT OPERATOR & PERTANYAAN DINAMIS -->
+        <!-- DEFAULT SECTION: MANAJEMEN PETUGAS & KUESIONER -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
-                <h4 class="font-weight-bold mb-1">Management Operator &amp; Pertanyaan Dinamis</h4>
-                <p class="text-muted small mb-0">Kelola tambah/kurang operator, atur 1–10 pertanyaan radio + 1 feedback akhir, serta lihat hasil survei.</p>
+                <h4 class="font-weight-bold mb-1">Manajemen Petugas &amp; Kuesioner Layanan</h4>
+                <p class="text-muted small mb-0">Kelola profil petugas pelayanan, daftar pertanyaan kuesioner, serta laporan hasil penilaian masyarakat.</p>
             </div>
             <a href="<?= $basePath ?>/admin/account_add" class="btn btn-primary btn-sm font-weight-bold shadow-sm">
-                + Tambah Operator Baru
+                + Tambah Petugas Baru
             </a>
         </div>
 
@@ -648,12 +647,12 @@ $companyLogo = !empty($settings['company_logo'])
                                 </span>
                             </div>
                             <div>
-                                <span class="text-muted">Partisipasi:</span>
-                                <strong><?= $totalSuara ?> Responden</strong>
+                                <span class="text-muted">Responden:</span>
+                                <strong><?= $totalSuara ?> Penilaian</strong>
                             </div>
                             <div>
-                                <span class="text-muted">Pertanyaan:</span>
-                                <strong><?= $qCount ?> Soal + 1 Feedback</strong>
+                                <span class="text-muted">Kuesioner:</span>
+                                <strong><?= $qCount ?> Pertanyaan</strong>
                             </div>
                         </div>
 
@@ -664,13 +663,13 @@ $companyLogo = !empty($settings['company_logo'])
 
                         <div class="admin-op-actions">
                             <a href="<?= $basePath ?>/admin/question_table?counter=<?= (int) $op['id'] ?>" class="btn btn-info btn-sm">
-                                Atur Soal (<?= $qCount ?>)
+                                Kuesioner (<?= $qCount ?>)
                             </a>
                             <a href="<?= $basePath ?>/admin/data_table?counter=<?= (int) $op['id'] ?>" class="btn btn-success btn-sm">
-                                Data (<?= $totalSuara ?>)
+                                Laporan (<?= $totalSuara ?>)
                             </a>
                             <a href="<?= $basePath ?>/admin/account_edit?id=<?= (int) $op['id'] ?>" class="btn btn-outline-secondary btn-sm">
-                                Edit Profil
+                                Ubah Data
                             </a>
                             <a href="<?= $basePath ?>/admin/account_delete?id=<?= (int) $op['id'] ?>"
                                onclick="return confirm('Hapus operator <?= htmlspecialchars(addslashes($op['name'])) ?>?');"
