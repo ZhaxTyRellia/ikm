@@ -6,16 +6,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700" rel="stylesheet">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/open-iconic-bootstrap.min.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/animate.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/owl.carousel.min.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/owl.theme.default.min.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/magnific-popup.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/aos.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/ionicons.min.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/flaticon.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/icomoon.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/style2.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/style.css">
   <?php if (!empty($showFooter)): ?>
@@ -54,14 +47,14 @@
       <?php if (!empty($isHome)): ?>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
           aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="oi oi-menu"></span> Menu
+          <span>&#9776;</span> Menu
         </button>
         <div style="font-size:25px;font-weight:800;color:white;font-family:calibri;">SATISFACTION SURVEY SYSTEM</div>
       <?php else: ?>
         <a class="navbar-brand" href="<?= $basePath ?>/admin/home">Home</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
           aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="oi oi-menu"></span> Menu
+          <span>&#9776;</span> Menu
         </button>
       <?php endif; ?>
 
@@ -92,17 +85,12 @@
   <?= $content ?>
 
   <script src="<?= $basePath ?>/js/jquery.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery-migrate-3.0.1.min.js"></script>
   <script src="<?= $basePath ?>/js/popper.min.js"></script>
   <script src="<?= $basePath ?>/js/bootstrap.min.js"></script>
   <script src="<?= $basePath ?>/js/jquery.easing.1.3.js"></script>
   <script src="<?= $basePath ?>/js/jquery.waypoints.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.stellar.min.js"></script>
   <script src="<?= $basePath ?>/js/owl.carousel.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.magnific-popup.min.js"></script>
-  <script src="<?= $basePath ?>/js/aos.js"></script>
   <script src="<?= $basePath ?>/js/jquery.animateNumber.min.js"></script>
-  <script src="<?= $basePath ?>/js/scrollax.min.js"></script>
   <script src="<?= $basePath ?>/js/mainoperator.js"></script>
 </body>
 

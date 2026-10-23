@@ -1,35 +1,5 @@
 .keyboard {
     z-index: 9999999;
-}
-
-/* fallback Icon keyboard fonts */
-@font-face {
-    font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
-    src: url(https://fonts.gstatic.com/s/materialicons/v129/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
-}
-
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
-}
-
-/* Keyboard fonts ends here */
-
-
-.keyboard {
     position: fixed;
     left: 0;
     bottom: 0;
@@ -39,6 +9,13 @@
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
     user-select: none;
     transition: bottom 0.4s;
+}
+
+.keyboard-icon {
+    font-style: normal;
+    font-size: 22px;
+    line-height: 1;
+    display: inline-block;
 }
 
 .keyboard--hidden {
@@ -99,25 +76,20 @@
 }
 
 .keyboard__key--dark {
-    background: rgba(0, 0, 0, 0.25);
     background: #2d64fb;
-    color: #311261;
+    color: #ffffff;
 }
 
 .hide-me {
-
     display: none;
-    ;
 }
 
 .backspace-btn {
     width: 200px !important;
-    /* margin-left: 10px; */
     margin-left: 0px !important;
     margin-right: 3px !important;
 }
 
 .nr-0 {
-    /* margin-left: -22px !important; */
     margin-right: 33px !important;
 }

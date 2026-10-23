@@ -5,10 +5,8 @@
   <meta charset="utf-8">
   <title>Survey Kepuasan</title>
   <link href="<?= $basePath ?>/css/style.css" type="text/css" rel="stylesheet" />
-  <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.jpg" />
-
+  <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
-
   <link rel="stylesheet" href="<?= $basePath ?>/css/animate.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/survey.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/keyboard.css">
@@ -70,31 +68,15 @@
 
   <script>
     var audio = document.getElementById('audio');
-
     function play() {
-      if (audio) {
-        audio.play();
-      }
+      if (audio) audio.play();
     }
-    setTimeout(function() {
-      if (audio) {
-        audio.play();
-      }
-    }, 1000);
+    setTimeout(play, 1000);
   </script>
 
   <script src="<?= $basePath ?>/js/script.multiform.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery-migrate-3.0.1.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.waypoints.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.stellar.min.js"></script>
-  <script src="<?= $basePath ?>/js/owl.carousel.min.js"></script>
-  <script src="<?= $basePath ?>/js/aos.js"></script>
-  <script src="<?= $basePath ?>/js/scrollax.min.js"></script>
-  <script src="<?= $basePath ?>/js/mainoperator.js"></script>
   <script src="<?= $basePath ?>/js/fullscreen.js"></script>
   <script src="<?= $basePath ?>/js/onscreen-keyboard.js"></script>
-
 </body>
 
 </html>
