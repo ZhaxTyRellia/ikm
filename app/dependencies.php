@@ -22,13 +22,13 @@ return static fn(string $basePath): array => [
 
         $pdo = new PDO("mysql:host={$host};charset=utf8mb4", $user, $pass, $options);
 
-        // Check if database and core tables exist; if not, auto-import ikm.sql migration & seed
+        // Check if database and core tables exist; if not, run PHP migration & seed automatically
         $dbExists = (bool) $pdo->query(
             'SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ' . $pdo->quote($db)
         )->fetchColumn();
 
         if (!$dbExists) {
-            SurveyRepository::importSqlFile($pdo, __DIR__ . '/../ikm.sql');
+            SurveyRepository::migrateAndSeed($pdo, $db);
         }
 
         $pdo->exec('USE `' . str_replace('`', '``', $db) . '`');
@@ -39,8 +39,7 @@ return static fn(string $basePath): array => [
         )->fetchColumn();
 
         if ($tableCount < 4) {
-            SurveyRepository::importSqlFile($pdo, __DIR__ . '/../ikm.sql');
-            $pdo->exec('USE `' . str_replace('`', '``', $db) . '`');
+            SurveyRepository::migrateAndSeed($pdo, $db);
         }
 
         return $pdo;

@@ -23,35 +23,37 @@
       display: inline-block;
       background: #1e3a8a;
       color: #ffffff;
-      font-family: sans-serif;
-      font-size: 13px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 12.5px;
       font-weight: 700;
-      padding: 5px 14px;
+      padding: 5px 16px;
       border-radius: 50px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      letter-spacing: 0.4px;
     }
     .feedback-actions {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       gap: 14px;
-      margin-top: 18px;
+      margin-top: 20px;
     }
     .btn-submit-survey {
-      background: #1e3a8a;
+      background: linear-gradient(135deg, #1e3a8a, #0f766e);
       color: #ffffff;
       border: none;
-      padding: 11px 24px;
+      padding: 12px 26px;
       border-radius: 8px;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
     }
     .btn-skip-feedback {
       background: #64748b;
       color: #ffffff;
       border: none;
-      padding: 11px 20px;
+      padding: 12px 22px;
       border-radius: 8px;
       font-size: 15px;
       font-weight: 600;
@@ -60,36 +62,59 @@
     .btn-submit-survey:hover, .btn-skip-feedback:hover {
       opacity: 0.92;
     }
+    .btn-back-home {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 13.5px;
+      transition: background 0.2s ease;
+    }
+    .btn-back-home:hover {
+      background: rgba(255, 255, 255, 0.24);
+    }
   </style>
 </head>
 
 <body>
-  <div id="header" style="justify-content:space-between;padding:8px 20px;">
+  <!-- Elemen Animasi Background Formal -->
+  <div class="survey-bg-elements" aria-hidden="true">
+    <div class="geo-shape geo-1"></div>
+    <div class="geo-shape geo-2"></div>
+    <div class="geo-shape geo-3"></div>
+    <div class="geo-shape geo-4"></div>
+    <div class="geo-shape geo-5"></div>
+  </div>
+
+  <div id="header">
     <div style="display:flex;align-items:center;">
-      <button onclick="openFullscreen();" style="background-color:transparent;border-style:none">
+      <button onclick="openFullscreen();" style="background-color:transparent;border-style:none;cursor:pointer;padding:0;" title="Layar Penuh">
         <img class="images" src="<?= htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8') ?>"
              alt="<?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?>"
-             style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid #2c01a3;padding:0;">
+             style="width:68px;height:68px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.65);padding:0;background:#fff;">
       </button>
       <div class="tittle-header">
         <a class="title"><?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></a>
-        <a class="title" style="font-size:15px;font-weight:500;">
+        <a class="title" style="font-size:14px;font-weight:500;color:#cbd5e1;">
           <?= htmlspecialchars((string) ($operator['address'] ?? 'Unit Pelayanan Masyarakat'), ENT_QUOTES, 'UTF-8') ?>
         </a>
         <?php if (!empty($operator['mobile']) || !empty($operator['email'])): ?>
-          <a class="title" style="font-size:13px;font-weight:400;">
+          <a class="title" style="font-size:12.5px;font-weight:400;color:#94a3b8;">
             <?= htmlspecialchars(trim(($operator['email'] ?? '') . ' ' . ($operator['mobile'] ? '| ' . $operator['mobile'] : '')), ENT_QUOTES, 'UTF-8') ?>
           </a>
         <?php endif; ?>
       </div>
     </div>
-    <a href="<?= $basePath ?>/" style="background:#2c01a3;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-family:sans-serif;font-size:14px;">
+    <a href="<?= $basePath ?>/" class="btn-back-home">
       &larr; Kembali ke Home
     </a>
   </div>
 
   <div id="content">
-    <section>
+    <section class="survey-card-shell">
       <div class="title-fieldset">SURVEI KEPUASAN MASYARAKAT (SUARA RAKYAT)</div>
       <form id="surveyForm" action="<?= $basePath ?>/survey?id=<?= urlencode((string) $counter) ?>" method="post">
         <input type="hidden" name="counter" value="<?= htmlspecialchars((string) $counter, ENT_QUOTES, 'UTF-8') ?>">
@@ -104,11 +129,12 @@
               <h2><?= htmlspecialchars($qText, ENT_QUOTES, 'UTF-8') ?></h2>
               <fieldset id="group<?= $stepIndex ?>">
                 <?php foreach ($ratingOptions as $ratingValue => $emoticonFile): ?>
-                  <label>
+                  <label class="emote-option-card">
                     <input type="radio" name="q<?= $stepIndex ?>" value="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>"
                       required="required" class="btn btn-next width-50 ml-auto">
                     <img src="<?= $basePath ?>/images/emote/<?= htmlspecialchars($emoticonFile, ENT_QUOTES, 'UTF-8') ?>"
-                      width="150px" height="150px" alt="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>">
+                      width="135px" height="135px" alt="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>">
+                    <span class="emote-label-text"><?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?></span>
                   </label>
                 <?php endforeach; ?>
               </fieldset>
@@ -119,7 +145,7 @@
           <!-- Langkah Terakhir: Tulis Catatan / Feedback untuk Operator (Wajib tampil di akhir radio, tapi tidak required / boleh di-skip) -->
           <div class="form-step">
             <div style="text-align:center;">
-              <span class="step-badge" style="background:#0d9488;">Langkah Terakhir: Catatan Feedback (Opsional)</span>
+              <span class="step-badge" style="background:#0f766e;">Langkah Terakhir: Catatan Feedback (Opsional)</span>
             </div>
             <h2>Tulis Catatan / Feedback untuk <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></h2>
             <p style="text-align:center;font-family:sans-serif;color:#475569;margin-top:-8px;margin-bottom:14px;font-size:14px;">
