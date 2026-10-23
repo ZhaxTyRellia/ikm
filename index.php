@@ -1,63 +1,43 @@
-<?php 
-include "db/approve.php";
-?>
+<?php
 
-<!DOCTYPE html>
-<html lang="en">
+declare(strict_types=1);
 
-<head>
-	<title>Login</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!--===============================================================================================-->
-	<link rel="icon" type="image/gif" href="images/favicon.png" />
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="css/login.css">
-	<!--===============================================================================================-->
-</head>
+use App\Config\Database;
+use App\Controllers\AdminController;
+use App\Controllers\AuthController;
+use App\Controllers\OperatorController;
+use App\Repositories\SurveyRepository;
+use Slim\Factory\AppFactory;
+use Slim\Views\PhpRenderer;
 
-<body>
+require __DIR__ . '/vendor/autoload.php';
 
-	<div class="limiter">
-		<div class="container-login100">
-			<div class="wrap-login100">
-				<form class="login100-form validate-form" action="" method="post">
-					<span class="login100-form-title p-b-33">
-						SIGN IN
-					</span>
-					<hr>
-					<br />
-					<div class="wrap-input100 validate-input" data-validate="Username is required">
-						<input class="input100" type="text" name="username" placeholder="Username" required>
-						<span class="focus-input100-1"></span>
-						<span class="focus-input100-2"></span>
-					</div>
-					<div class="space"></div>
-					<div class="wrap-input100 rs1 validate-input" data-validate="Password is required">
-						<input class="input100" type="password" name="password" placeholder="Password" required>
-						<span class="focus-input100-1"></span>
-						<span class="focus-input100-2"></span>
-					</div>
-					<br />
-					<div class="error">
-						<?php echo $error; ?>
-					</div>
-					<br />
-					<div class="container-login100-form-btn">
-						<button type="submit" name="login" class="login100-form-btn">Sign In</button>
-					</div>
-				</form>
-				<br />
-				<div class="copyright">
-					<center>Developer <img class="developer" src="images/favicon.png"> &copy; Shakti 2023.
-					</center>
-				</div>
-			</div>
-		</div>
-	</div>
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-</body>
+$app = AppFactory::create();
 
-</html>
+// Automatically detect subdirectory basePath if hosted under a subfolder
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
+$basePath = ($scriptDir !== '/' && $scriptDir !== '.') ? rtrim($scriptDir, '/') : '';
+if ($basePath !== '') {
+    $app->setBasePath($basePath);
+}
+
+$app->addBodyParsingMiddleware();
+$app->addRoutingMiddleware();
+$app->addErrorMiddleware(true, true, true);
+
+$pdo = Database::getConnection();
+$repository = new SurveyRepository($pdo);
+$renderer = new PhpRenderer(__DIR__ . '/views');
+
+$authController = new AuthController($renderer, $repository, $basePath);
+$adminController = new AdminController($renderer, $repository, $basePath);
+$operatorController = new OperatorController($renderer, $repository, $basePath);
+
+$registerRoutes = require __DIR__ . '/app/routes.php';
+$registerRoutes($app, $authController, $adminController, $operatorController, $basePath);
+
+$app->run();
