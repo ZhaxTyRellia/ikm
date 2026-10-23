@@ -330,7 +330,7 @@ endif; ?>
                         <div id="questionsContainer">
                             <?php for ($i = 1; $i <= 10; $i++): ?>
                                 <?php
-                                $val = $existingMap[$i] ?? ($defaultQuestions[$i] ?? "Bagaimana penilaian Anda terhadap aspek pelayanan ke-{$i}?");
+                                $val = $existingMap[$i] ?? '';
                                 $isVisible = $i <= $currentCount;
                                 ?>
                                 <div class="form-group question-item-row p-2 rounded border mb-2"
@@ -343,6 +343,7 @@ endif; ?>
                                         id="qInput<?= $i ?>"
                                         name="questions[<?= $i ?>]"
                                         class="form-control form-control-sm q-input-field"
+                                        placeholder="Tuliskan isi pertanyaan ke-<?= $i ?>..."
                                         value="<?= htmlspecialchars($val) ?>"
                                         <?= $isVisible ? 'required' : '' ?> />
                                 </div>
@@ -543,27 +544,15 @@ endif; ?>
                                             value="<?= htmlspecialchars((string) ($account['mobile'] ?? '')) ?>" />
                                     </div>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label class="small font-weight-bold">Foto Profil Petugas</label>
-                                        <?php if (!empty($isEdit) && !empty($account['photo'])): ?>
-                                            <div class="mb-2">
-                                                <img src="<?= $basePath . '/' . ltrim(htmlspecialchars((string) $account['photo']), '/') ?>"
-                                                    alt="Foto" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #1e3a8a;" />
-                                            </div>
-                                        <?php endif; ?>
-                                        <input type="file" name="photo" accept="image/*" class="form-control-file small" />
-                                    </div>
-                                    <?php if (empty($isEdit)): ?>
-                                        <div class="form-group col-md-6">
-                                            <label class="small font-weight-bold">Jumlah Pertanyaan Kuesioner</label>
-                                            <select name="question_count" class="form-control form-control-sm font-weight-bold">
-                                                <?php for ($i = 1; $i <= 10; $i++): ?>
-                                                    <option value="<?= $i ?>" <?= $i === 1 ? 'selected' : '' ?>><?= $i ?> Pertanyaan</option>
-                                                <?php endfor; ?>
-                                            </select>
+                                <div class="form-group">
+                                    <label class="small font-weight-bold">Foto Profil Petugas</label>
+                                    <?php if (!empty($isEdit) && !empty($account['photo'])): ?>
+                                        <div class="mb-2">
+                                            <img src="<?= $basePath . '/' . ltrim(htmlspecialchars((string) $account['photo']), '/') ?>"
+                                                alt="Foto" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #1e3a8a;" />
                                         </div>
                                     <?php endif; ?>
+                                    <input type="file" name="photo" accept="image/*" class="form-control-file small" />
                                 </div>
                                 <div class="text-right pt-2 border-top">
                                     <a href="<?= $basePath ?>/admin/home" class="btn btn-secondary btn-sm">Batal</a>
