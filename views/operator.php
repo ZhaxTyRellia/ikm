@@ -7,12 +7,12 @@
   $opName = $operator['name'] ?? "Operator {$counter}";
   $photoUrl = !empty($operator['photo'])
       ? $basePath . '/' . ltrim((string) $operator['photo'], '/')
-      : $basePath . '/images/user.png';
+      : $basePath . '/images/logo.png';
   $totalQuestions = count($questions ?? []);
   ?>
   <title>Survei Kepuasan - <?= htmlspecialchars((string) $opName, ENT_QUOTES, 'UTF-8') ?></title>
   <link href="<?= $basePath ?>/css/style.css" type="text/css" rel="stylesheet" />
-  <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
+  <link rel="shortcut icon" href="<?= $basePath ?>/images/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
   <link rel="stylesheet" href="<?= $basePath ?>/css/animate.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/survey.css">
@@ -23,26 +23,26 @@
       background: #1e3a8a;
       color: #ffffff;
       font-family: sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
-      padding: 6px 16px;
+      padding: 5px 14px;
       border-radius: 50px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .feedback-actions {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 16px;
-      margin-top: 20px;
+      gap: 14px;
+      margin-top: 18px;
     }
     .btn-submit-survey {
       background: #1e3a8a;
       color: #ffffff;
       border: none;
-      padding: 12px 28px;
+      padding: 11px 24px;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -50,9 +50,9 @@
       background: #64748b;
       color: #ffffff;
       border: none;
-      padding: 12px 24px;
+      padding: 11px 20px;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -68,21 +68,21 @@
       <button onclick="openFullscreen();" style="background-color:transparent;border-style:none">
         <img class="images" src="<?= htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8') ?>"
              alt="<?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?>"
-             style="width:85px;height:85px;border-radius:50%;object-fit:cover;border:3px solid #2c01a3;padding:0;">
+             style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid #2c01a3;padding:0;">
       </button>
       <div class="tittle-header">
         <a class="title"><?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></a>
-        <a class="title" style="font-size:16px;font-weight:500;">
+        <a class="title" style="font-size:15px;font-weight:500;">
           <?= htmlspecialchars((string) ($operator['address'] ?? 'Unit Pelayanan Masyarakat'), ENT_QUOTES, 'UTF-8') ?>
         </a>
         <?php if (!empty($operator['mobile']) || !empty($operator['email'])): ?>
-          <a class="title" style="font-size:14px;font-weight:400;">
+          <a class="title" style="font-size:13px;font-weight:400;">
             <?= htmlspecialchars(trim(($operator['email'] ?? '') . ' ' . ($operator['mobile'] ? '| ' . $operator['mobile'] : '')), ENT_QUOTES, 'UTF-8') ?>
           </a>
         <?php endif; ?>
       </div>
     </div>
-    <a href="<?= $basePath ?>/" style="background:#2c01a3;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-family:sans-serif;">
+    <a href="<?= $basePath ?>/" style="background:#2c01a3;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-family:sans-serif;font-size:14px;">
       &larr; Kembali ke Home
     </a>
   </div>
@@ -107,7 +107,7 @@
                     <input type="radio" name="q<?= $stepIndex ?>" value="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>"
                       required="required" class="btn btn-next width-50 ml-auto">
                     <img src="<?= $basePath ?>/images/Emot4/<?= htmlspecialchars($emoticonFile, ENT_QUOTES, 'UTF-8') ?>"
-                      width="160px" height="160px" alt="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>">
+                      width="150px" height="150px" alt="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>">
                   </label>
                 <?php endforeach; ?>
               </fieldset>
@@ -121,7 +121,7 @@
               <span class="step-badge" style="background:#0d9488;">Langkah Terakhir: Catatan Feedback (Opsional)</span>
             </div>
             <h2>Tulis Catatan / Feedback untuk <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></h2>
-            <p style="text-align:center;font-family:sans-serif;color:#475569;margin-top:-8px;margin-bottom:14px;">
+            <p style="text-align:center;font-family:sans-serif;color:#475569;margin-top:-8px;margin-bottom:14px;font-size:14px;">
               Berikan kritik, saran, atau apresiasi untuk operator ini (boleh dilewati / langsung kirim jika tidak ingin mengetik).
             </p>
             <input type="text" id="suggestionInput" name="suggestion" class="form-control"

@@ -20,39 +20,31 @@ class AdminController
 
     public function home(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->render($response, 'admin/home.php', [
+        return $this->render($response, [
             'title'      => 'Dashboard Management Admin',
             'activeMenu' => 'home',
-            'showFooter' => true,
+            'section'    => 'dashboard',
             'operators'  => $this->repo->getOperatorsWithTotals(),
         ]);
     }
 
     public function data(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->render($response, 'admin/counter_select.php', [
-            'title'           => 'Hasil Survey Data',
-            'activeMenu'      => 'data',
-            'showFooter'      => true,
-            'heading'         => 'Hasil Survey & Feedback Per Operator',
-            'targetRoute'     => '/admin/data_table?counter=',
-            'cardDescription' => 'Lihat rekapitulasi hasil suara rakyat, rating bintang, & catatan feedback operator ini.',
-            'operators'       => $this->repo->getOperatorsWithTotals(),
-        ]);
+        return $this->home($request, $response);
     }
 
     public function dataTable(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         [$counter, $awal, $akhir] = $this->extractFilterParams($request);
         $operator = $this->repo->getUserById((int) $counter);
-        $questions = $this->repo->getQuestionsByCounter($counter);
 
-        return $this->render($response, 'admin/data_table.php', [
+        return $this->render($response, [
             'title'       => 'Data Survey ' . ($operator['name'] ?? "Operator {$counter}"),
             'activeMenu'  => 'data',
+            'section'     => 'data',
             'counter'     => $counter,
             'operator'    => $operator,
-            'questions'   => $questions,
+            'questions'   => $this->repo->getQuestionsByCounter($counter),
             'awal'        => $awal,
             'akhir'       => $akhir,
             'summary'     => $this->repo->getSurveySummary($counter, $awal ?: null, $akhir ?: null),
@@ -64,14 +56,14 @@ class AdminController
     {
         [$counter, $awal, $akhir] = $this->extractFilterParams($request);
         $operator = $this->repo->getUserById((int) $counter);
-        $this->view->setLayout('');
 
         $opName = preg_replace('/[^A-Za-z0-9_-]/', '_', $operator['name'] ?? "Operator_{$counter}");
         $filename = ($awal && $akhir)
             ? "Survey_{$opName}_{$awal}_{$akhir}.xls"
             : "Hasil_Survey_{$opName}.xls";
 
-        return $this->view->render($response, 'admin/export_excel.php', [
+        return $this->view->render($response, 'admin.php', [
+            'section'     => 'export',
             'counter'     => $counter,
             'operator'    => $operator,
             'summary'     => $this->repo->getSurveySummary($counter, $awal ?: null, $akhir ?: null),
@@ -84,15 +76,7 @@ class AdminController
 
     public function question(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->render($response, 'admin/counter_select.php', [
-            'title'           => 'Management Pertanyaan Dinamis (1-10)',
-            'activeMenu'      => 'question',
-            'showFooter'      => true,
-            'heading'         => 'Atur Pertanyaan Dinamis (1–10) Per Operator',
-            'targetRoute'     => '/admin/question_table?counter=',
-            'cardDescription' => 'Pilih dan sesuaikan 1–10 pertanyaan survei beserta 1 form feedback akhir untuk operator ini.',
-            'operators'       => $this->repo->getOperatorsWithTotals(),
-        ]);
+        return $this->home($request, $response);
     }
 
     public function questionTable(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -100,9 +84,10 @@ class AdminController
         $counter = (string) ($request->getQueryParams()['counter'] ?? '1');
         $operator = $this->repo->getUserById((int) $counter);
 
-        return $this->render($response, 'admin/question_table.php', [
+        return $this->render($response, [
             'title'            => 'Atur Pertanyaan ' . ($operator['name'] ?? "Operator {$counter}"),
             'activeMenu'       => 'question',
+            'section'          => 'question',
             'counter'          => $counter,
             'operator'         => $operator,
             'questions'        => $this->repo->getQuestionsByCounter($counter),
@@ -121,19 +106,20 @@ class AdminController
 
     public function account(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->render($response, 'admin/account.php', [
+        return $this->render($response, [
             'title'      => 'Management Operator & Admin',
             'activeMenu' => 'account',
-            'showFooter' => true,
+            'section'    => 'account_list',
             'users'      => $this->repo->getAllUsers(),
         ]);
     }
 
     public function accountAddForm(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->render($response, 'admin/account_form.php', [
+        return $this->render($response, [
             'title'      => 'Tambah Target Operator / Admin',
             'activeMenu' => 'account',
+            'section'    => 'account_form',
             'isEdit'     => false,
             'account'    => [],
         ]);
@@ -166,9 +152,10 @@ class AdminController
             return $this->redirect($response, '/admin/home');
         }
 
-        return $this->render($response, 'admin/account_form.php', [
+        return $this->render($response, [
             'title'      => 'Edit Identitas Operator / Admin',
             'activeMenu' => 'account',
+            'section'    => 'account_form',
             'isEdit'     => true,
             'account'    => $account,
         ]);
@@ -230,11 +217,10 @@ class AdminController
         return 'images/operators/' . $filename;
     }
 
-    private function render(ResponseInterface $response, string $template, array $data = []): ResponseInterface
+    private function render(ResponseInterface $response, array $data = []): ResponseInterface
     {
         $data['isAdmin'] = true;
-        $this->view->setLayout('layouts/admin.php');
-        return $this->view->render($response, $template, $data);
+        return $this->view->render($response, 'admin.php', $data);
     }
 
     private function extractFilterParams(ServerRequestInterface $request): array

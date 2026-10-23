@@ -19,11 +19,10 @@ class OperatorController
 
     public function survey(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->view->setLayout('');
         $counter = (string) ($request->getQueryParams()['id'] ?? $request->getQueryParams()['counter'] ?? '1');
         $operator = $this->repo->getUserById((int) $counter);
 
-        return $this->view->render($response, 'operator/survey.php', [
+        return $this->view->render($response, 'operator.php', [
             'counter'       => $counter,
             'operator'      => $operator,
             'questions'     => $this->repo->getQuestionsByCounter($counter),

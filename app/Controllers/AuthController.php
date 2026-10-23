@@ -19,9 +19,7 @@ class AuthController
 
     public function home(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->view->setLayout('');
-
-        return $this->view->render($response, 'public_home.php', [
+        return $this->view->render($response, 'home.php', [
             'isAdmin'    => !empty($_SESSION['islogin']) && ($_SESSION['role'] ?? '') === 'admin',
             'loginError' => '',
             'operators'  => $this->repo->getOperatorsWithTotals(),
@@ -37,8 +35,7 @@ class AuthController
         );
 
         if (!$user || ($user['role'] ?? '') !== 'admin') {
-            $this->view->setLayout('');
-            return $this->view->render($response, 'public_home.php', [
+            return $this->view->render($response, 'home.php', [
                 'isAdmin'    => false,
                 'loginError' => !$user ? 'Username atau Password salah!' : 'Login hanya untuk Admin!',
                 'operators'  => $this->repo->getOperatorsWithTotals(),
