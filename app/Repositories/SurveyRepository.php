@@ -42,6 +42,46 @@ class SurveyRepository
     }
 
     /**
+     * Imports and executes the migration & seed SQL file (ikm.sql).
+     */
+    public static function importSqlFile(PDO $pdo, string $sqlFilePath): void
+    {
+        if (!is_file($sqlFilePath)) {
+            return;
+        }
+
+        $sql = (string) file_get_contents($sqlFilePath);
+        $lines = preg_split('/\r\n|\r|\n/', $sql) ?: [];
+        $cleanLines = [];
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || str_starts_with($trimmed, '--')) {
+                continue;
+            }
+            $cleanLines[] = $line;
+        }
+
+        $cleanSql = implode("\n", $cleanLines);
+        $statements = preg_split('/;\s*(\n|$)/', $cleanSql) ?: [];
+
+        foreach ($statements as $statement) {
+            $stmt = trim($statement);
+            if ($stmt !== '') {
+                $pdo->exec($stmt);
+            }
+        }
+    }
+
+    /**
+     * Resets the database back to a fresh initial state using ikm.sql migration & seed.
+     */
+    public function resetDatabase(): void
+    {
+        self::importSqlFile($this->db, __DIR__ . '/../../ikm.sql');
+    }
+
+    /**
      * Returns site-wide settings (company logo, marquee text, footer text).
      *
      * @return array{company_logo: string, marquee_text: string, footer_text: string}

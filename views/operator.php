@@ -7,12 +7,13 @@
   $opName = $operator['name'] ?? "Operator {$counter}";
   $photoUrl = !empty($operator['photo'])
       ? $basePath . '/' . ltrim((string) $operator['photo'], '/')
-      : $basePath . '/images/logo.png';
+      : $basePath . '/images/default-operator.svg';
   $totalQuestions = count($questions ?? []);
+  $marqueeText = $settings['marquee_text'] ?? 'Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami.';
   ?>
   <title>Survei Kepuasan - <?= htmlspecialchars((string) $opName, ENT_QUOTES, 'UTF-8') ?></title>
   <link href="<?= $basePath ?>/css/style.css" type="text/css" rel="stylesheet" />
-  <link rel="shortcut icon" href="<?= $basePath ?>/images/logo.png" />
+  <link rel="icon" type="image/png" href="<?= $basePath ?>/images/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
   <link rel="stylesheet" href="<?= $basePath ?>/css/animate.css">
   <link rel="stylesheet" href="<?= $basePath ?>/css/survey.css">
@@ -106,7 +107,7 @@
                   <label>
                     <input type="radio" name="q<?= $stepIndex ?>" value="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>"
                       required="required" class="btn btn-next width-50 ml-auto">
-                    <img src="<?= $basePath ?>/images/Emot4/<?= htmlspecialchars($emoticonFile, ENT_QUOTES, 'UTF-8') ?>"
+                    <img src="<?= $basePath ?>/images/emote/<?= htmlspecialchars($emoticonFile, ENT_QUOTES, 'UTF-8') ?>"
                       width="150px" height="150px" alt="<?= htmlspecialchars($ratingValue, ENT_QUOTES, 'UTF-8') ?>">
                   </label>
                 <?php endforeach; ?>
@@ -144,7 +145,7 @@
 
   <div id="footer">
     <marquee>
-      <span>Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami.</span>
+      <span><?= htmlspecialchars((string) $marqueeText, ENT_QUOTES, 'UTF-8') ?></span>
     </marquee>
   </div>
 

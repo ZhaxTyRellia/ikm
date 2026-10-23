@@ -51,5 +51,6 @@ return static function (App $app): void {
 
         $group->get('/settings', [AdminController::class, 'settingsForm'])->setName('admin.settings');
         $group->post('/settings', [AdminController::class, 'settingsUpdate']);
+        $group->post('/reset_database', [AdminController::class, 'resetDatabase'])->setName('admin.reset_database');
     })->add(new AuthMiddleware('admin'));
 };

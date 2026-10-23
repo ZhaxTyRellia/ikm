@@ -208,6 +208,13 @@ class AdminController
         return $this->alertRedirect($response, 'Pengaturan logo dan teks footer marquee berhasil disimpan!', '/admin/settings');
     }
 
+    public function resetDatabase(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $this->repo->resetDatabase();
+
+        return $this->alertRedirect($response, 'Database berhasil di-reset kembali fresh seperti baru!', '/admin/settings');
+    }
+
     private function handleLogoUpload(ServerRequestInterface $request): ?string
     {
         $files = $request->getUploadedFiles();

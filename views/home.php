@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Portal Polling &amp; Survei IKM - Suara Rakyat</title>
-    <link rel="shortcut icon" href="<?= $basePath ?>/images/logo.png">
+    <link rel="icon" type="image/png" href="<?= $basePath ?>/images/favicon.png">
     <link rel="stylesheet" href="<?= $basePath ?>/css/style2.css" />
     <style>
         *, *::before, *::after {
@@ -366,7 +366,12 @@
     </div>
 
     <div class="welcome-content">
-        <img src="<?= $basePath ?>/images/logo.png" alt="Logo IKM" class="welcome-logo" />
+        <?php
+        $companyLogo = !empty($settings['company_logo'])
+            ? $basePath . '/' . ltrim((string) $settings['company_logo'], '/')
+            : $basePath . '/images/logo.png';
+        ?>
+        <img src="<?= htmlspecialchars($companyLogo, ENT_QUOTES, 'UTF-8') ?>" alt="Logo Instansi" class="welcome-logo" />
         <div>
             <span class="welcome-pill">&#9733; Portal Survei Kepuasan Masyarakat (IKM)</span>
         </div>
@@ -420,7 +425,7 @@
                 <?php
                 $photoUrl = !empty($op['photo'])
                     ? $basePath . '/' . ltrim((string) $op['photo'], '/')
-                    : $basePath . '/images/logo.png';
+                    : $basePath . '/images/default-operator.svg';
                 $starsFilled = (int) ($op['stars_filled'] ?? 0);
                 $starRating  = number_format((float) ($op['star_rating'] ?? 0), 1);
                 $totalSuara  = (int) ($op['total_suara'] ?? 0);
@@ -471,8 +476,16 @@
 <!-- 3. FOOTER DENGAN TOMBOL LOGIN SAMAR DI KANAN -->
 <footer class="site-footer">
     <div class="site-footer-inner">
-        <div>
-            <strong>Portal Survei IKM &amp; Suara Rakyat</strong> &copy; <?= date('Y') ?> All Rights Reserved.
+        <div style="flex: 1; min-width: 240px;">
+            <div>
+                <strong><?= htmlspecialchars((string) ($settings['footer_text'] ?? 'Portal Survei IKM & Suara Rakyat'), ENT_QUOTES, 'UTF-8') ?></strong>
+                &copy; <?= date('Y') ?> All Rights Reserved.
+            </div>
+            <?php if (!empty($settings['marquee_text'])): ?>
+                <div style="margin-top: 4px; color: #cbd5e1; font-size: 11.5px;">
+                    <marquee scrollamount="5"><?= htmlspecialchars((string) $settings['marquee_text'], ENT_QUOTES, 'UTF-8') ?></marquee>
+                </div>
+            <?php endif; ?>
         </div>
         <div>
             <?php if (!empty($isAdmin)): ?>

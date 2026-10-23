@@ -71,7 +71,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title><?= htmlspecialchars($title ?? 'Dashboard Management Admin - IKM', ENT_QUOTES, 'UTF-8') ?></title>
-    <link rel="shortcut icon" href="<?= $basePath ?>/images/logo.png">
+    <link rel="icon" type="image/png" href="<?= $basePath ?>/images/favicon.png">
     <link rel="stylesheet" href="<?= $basePath ?>/css/style2.css" />
     <style>
         *, *::before, *::after { box-sizing: border-box; }
@@ -222,15 +222,21 @@
 </head>
 <body>
 
+<?php
+$companyLogo = !empty($settings['company_logo'])
+    ? $basePath . '/' . ltrim((string) $settings['company_logo'], '/')
+    : $basePath . '/images/logo.png';
+?>
 <header class="admin-topbar">
     <div class="admin-topbar-inner">
         <a href="<?= $basePath ?>/admin/home" class="brand-box">
-            <img src="<?= $basePath ?>/images/logo.png" alt="Logo" />
+            <img src="<?= htmlspecialchars($companyLogo, ENT_QUOTES, 'UTF-8') ?>" alt="Logo" />
             <span>Dashboard Management IKM</span>
         </a>
         <nav class="nav-links">
             <a href="<?= $basePath ?>/admin/home" class="<?= ($activeMenu ?? 'home') === 'home' ? 'active' : '' ?>">Management Operator</a>
             <a href="<?= $basePath ?>/admin/account_add" class="<?= ($activeMenu ?? '') === 'account_add' ? 'active' : '' ?>">+ Tambah Operator</a>
+            <a href="<?= $basePath ?>/admin/settings" class="<?= ($activeMenu ?? '') === 'settings' ? 'active' : '' ?>">Pengaturan Logo &amp; Footer</a>
             <a href="<?= $basePath ?>/" target="_blank" style="border: 1px solid rgba(255,255,255,0.25);">Lihat Home &nearr;</a>
             <a href="<?= $basePath ?>/logout" style="background:#dc2626;color:#fff;">Logout</a>
         </nav>
@@ -531,6 +537,71 @@
             </div>
         </div>
 
+    <?php elseif (($section ?? '') === 'settings'): ?>
+        <!-- SECTION: PENGATURAN LOGO PERUSAHAAN SETEMPAT & TULISAN FOOTER MARQUEE -->
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="font-weight-bold mb-0">Pengaturan Logo Instansi &amp; Teks Footer Marquee</h4>
+                        <p class="text-muted small mb-0">Ubah gambar logo perusahaan/instansi setempat serta teks berjalan (marquee) pada footer survei dan halaman utama.</p>
+                    </div>
+                    <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">&larr; Kembali</a>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form action="<?= $basePath ?>/admin/settings" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label class="small font-weight-bold d-block">Gambar Logo Perusahaan / Instansi Setempat Saat Ini</label>
+                                <div class="p-3 bg-dark rounded d-inline-block mb-2">
+                                    <img src="<?= htmlspecialchars($companyLogo, ENT_QUOTES, 'UTF-8') ?>"
+                                         alt="Logo Perusahaan"
+                                         style="max-height: 64px; width: auto; object-fit: contain;" />
+                                </div>
+                                <input type="file" name="company_logo" accept="image/*" class="form-control-file small mt-1" />
+                                <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengganti gambar logo saat ini. (Favicon tetap menggunakan <code>favicon.png</code>).</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Tulisan Running Text (Marquee) di Footer Survei &amp; Home</label>
+                                <textarea name="marquee_text" rows="2" class="form-control form-control-sm" required
+                                          placeholder="Contoh: Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami."><?= htmlspecialchars((string) ($settings['marquee_text'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Nama Instansi / Judul Footer</label>
+                                <input type="text" name="footer_text" class="form-control form-control-sm" required
+                                       placeholder="Contoh: Portal Survei IKM & Suara Rakyat"
+                                       value="<?= htmlspecialchars((string) ($settings['footer_text'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                            </div>
+
+                            <div class="text-right pt-2 border-top">
+                                <a href="<?= $basePath ?>/admin/home" class="btn btn-secondary btn-sm">Batal</a>
+                                <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">Simpan Pengaturan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- FITUR RESET DATABASE (KEMBALI FRESH SEPERTI BARU) -->
+                <div class="card border-danger shadow-sm mt-4" style="border-width: 1px;">
+                    <div class="card-body p-4">
+                        <h5 class="font-weight-bold text-danger mb-1">Reset / Nolkan Database (Kembali Fresh Seperti Baru)</h5>
+                        <p class="text-muted small mb-3">
+                            Fitur ini <strong>khusus me-reset database saja</strong> (mengimpor ulang migrasi &amp; seed <code>ikm.sql</code>).
+                            Seluruh perolehan suara survei, catatan feedback, daftar operator, pertanyaan, dan pengaturan akan dikembalikan ke kondisi awal bawaan seperti baru diinstal tanpa menghapus file aplikasi.
+                        </p>
+                        <form action="<?= $basePath ?>/admin/reset_database" method="post"
+                              onsubmit="return confirm('PERINGATAN: Anda yakin ingin me-reset/menolkan seluruh isi database kembali fresh seperti baru?');">
+                            <button type="submit" class="btn btn-danger btn-sm px-4 font-weight-bold">
+                                Reset Database ke Awal Sekarang
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <?php else: ?>
         <!-- DEFAULT SECTION: DASHBOARD MANAGEMENT OPERATOR & PERTANYAAN DINAMIS -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom">
@@ -553,7 +624,7 @@
                     <?php
                     $photoUrl = !empty($op['photo'])
                         ? $basePath . '/' . ltrim((string) $op['photo'], '/')
-                        : $basePath . '/images/logo.png';
+                        : $basePath . '/images/default-operator.svg';
                     $starsFilled = (int) ($op['stars_filled'] ?? 0);
                     $starRating  = number_format((float) ($op['star_rating'] ?? 0), 1);
                     $totalSuara  = (int) ($op['total_suara'] ?? 0);
@@ -616,8 +687,8 @@
 </main>
 
 <footer class="admin-footer">
-    <div style="max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;">
-        <span>&copy; <?= date('Y') ?> Panel Management Admin Survei IKM</span>
+    <div style="max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <span>&copy; <?= date('Y') ?> <?= htmlspecialchars((string) ($settings['footer_text'] ?? 'Panel Management Admin Survei IKM'), ENT_QUOTES, 'UTF-8') ?></span>
         <a href="<?= $basePath ?>/" class="text-light">Ke Halaman Utama &rarr;</a>
     </div>
 </footer>
