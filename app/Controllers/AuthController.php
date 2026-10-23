@@ -15,6 +15,7 @@ class AuthController
         private readonly PhpRenderer $view,
         private readonly SurveyRepository $repo
     ) {
+        $this->view->setLayout('');
     }
 
     public function showLogin(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -29,11 +30,13 @@ class AuthController
             }
         }
 
+        $this->view->setLayout('');
         return $this->view->render($response, 'auth/login.php', ['error' => '']);
     }
 
     public function login(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
+        $this->view->setLayout('');
         $body = (array) ($request->getParsedBody() ?? []);
         $user = $this->repo->findUserByCredentials(
             trim((string) ($body['username'] ?? '')),

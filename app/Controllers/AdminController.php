@@ -15,12 +15,11 @@ class AdminController
         private readonly PhpRenderer $view,
         private readonly SurveyRepository $repo
     ) {
-        $this->view->setLayout('layouts/admin.php');
     }
 
     public function home(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->view->render($response, 'admin/home.php', [
+        return $this->render($response, 'admin/home.php', [
             'title'      => 'Dashboard',
             'activeMenu' => 'home',
             'isHome'     => true,
@@ -30,7 +29,7 @@ class AdminController
 
     public function data(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->view->render($response, 'admin/counter_select.php', [
+        return $this->render($response, 'admin/counter_select.php', [
             'title'           => 'Dashboard',
             'activeMenu'      => 'data',
             'showFooter'      => true,
@@ -45,7 +44,7 @@ class AdminController
     {
         [$counter, $awal, $akhir] = $this->extractFilterParams($request);
 
-        return $this->view->render($response, 'admin/data_table.php', [
+        return $this->render($response, 'admin/data_table.php', [
             'title'       => "Data Survey {$counter}",
             'activeMenu'  => 'data',
             'counter'     => $counter,
@@ -77,7 +76,7 @@ class AdminController
 
     public function question(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->view->render($response, 'admin/counter_select.php', [
+        return $this->render($response, 'admin/counter_select.php', [
             'title'           => 'Dashboard',
             'activeMenu'      => 'question',
             'showFooter'      => true,
@@ -92,7 +91,7 @@ class AdminController
     {
         $counter = (string) ($request->getQueryParams()['counter'] ?? '1');
 
-        return $this->view->render($response, 'admin/question_table.php', [
+        return $this->render($response, 'admin/question_table.php', [
             'title'      => "Edit Question Survey {$counter}",
             'activeMenu' => 'question',
             'counter'    => $counter,
@@ -111,7 +110,7 @@ class AdminController
 
     public function account(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->view->render($response, 'admin/account.php', [
+        return $this->render($response, 'admin/account.php', [
             'title'      => 'Dashboard',
             'activeMenu' => 'account',
             'showFooter' => true,
@@ -121,7 +120,7 @@ class AdminController
 
     public function accountAddForm(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->view->render($response, 'admin/account_form.php', [
+        return $this->render($response, 'admin/account_form.php', [
             'title'      => 'Add Account',
             'activeMenu' => 'account',
             'isEdit'     => false,
@@ -150,7 +149,7 @@ class AdminController
             return $this->redirect($response, '/admin/account');
         }
 
-        return $this->view->render($response, 'admin/account_form.php', [
+        return $this->render($response, 'admin/account_form.php', [
             'title'      => 'Edit Account',
             'activeMenu' => 'account',
             'isEdit'     => true,
@@ -181,6 +180,12 @@ class AdminController
         }
 
         return $this->redirect($response, '/admin/account');
+    }
+
+    private function render(ResponseInterface $response, string $template, array $data = []): ResponseInterface
+    {
+        $this->view->setLayout('layouts/admin.php');
+        return $this->view->render($response, $template, $data);
     }
 
     private function extractFilterParams(ServerRequestInterface $request): array

@@ -15,10 +15,12 @@ class OperatorController
         private readonly PhpRenderer $view,
         private readonly SurveyRepository $repo
     ) {
+        $this->view->setLayout('');
     }
 
     public function survey(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
+        $this->view->setLayout('');
         $counter = '1';
 
         return $this->view->render($response, 'operator/survey.php', [
