@@ -19,12 +19,9 @@ class AuthController
 
     public function home(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->view->setLayout('layouts/admin.php');
+        $this->view->setLayout('');
 
-        return $this->view->render($response, 'admin/home.php', [
-            'title'      => 'Satisfaction Survey System',
-            'activeMenu' => 'home',
-            'isHome'     => true,
+        return $this->view->render($response, 'public_home.php', [
             'isAdmin'    => !empty($_SESSION['islogin']) && ($_SESSION['role'] ?? '') === 'admin',
             'loginError' => '',
             'operators'  => $this->repo->getOperatorsWithTotals(),
@@ -40,13 +37,10 @@ class AuthController
         );
 
         if (!$user || ($user['role'] ?? '') !== 'admin') {
-            $this->view->setLayout('layouts/admin.php');
-            return $this->view->render($response, 'admin/home.php', [
-                'title'      => 'Satisfaction Survey System',
-                'activeMenu' => 'home',
-                'isHome'     => true,
+            $this->view->setLayout('');
+            return $this->view->render($response, 'public_home.php', [
                 'isAdmin'    => false,
-                'loginError' => !$user ? 'Username atau Password salah!' : 'Login hanya diperuntukkan bagi Admin!',
+                'loginError' => !$user ? 'Username atau Password salah!' : 'Login hanya untuk Admin!',
                 'operators'  => $this->repo->getOperatorsWithTotals(),
             ]);
         }

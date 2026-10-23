@@ -1,90 +1,119 @@
-<section class="ftco-section ftco-section-2">
-  <div class="container"><div class="row"></div></div>
-</section>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h3 class="font-weight-bold text-dark mb-1">
+                        <?= !empty($isEdit) ? 'Edit Profil Operator / Admin' : 'Tambah Target Operator / Admin Baru' ?>
+                    </h3>
+                    <p class="text-muted small mb-0">
+                        Lengkapi foto profil dan identitas lengkap operator untuk ditampilkan pada beranda survei publik.
+                    </p>
+                </div>
+                <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">
+                    &larr; Kembali
+                </a>
+            </div>
 
-<div class="container-fluid">
-  <div class="row justify-content-center mb-5 pb-5">
-    <div class="col-md-7 text-center heading-section ftco-animate">
-      <h2 class="mb-2"><?= !empty($isEdit) ? 'Edit Identitas Akun / Operator' : 'Tambah Akun / Target Operator' ?></h2>
-      <span class="subheading">Lengkapi foto profil dan identitas lengkap operator sebagai wadah suara rakyat</span>
+            <div class="card border-0 shadow-sm" style="border-radius: 14px;">
+                <div class="card-body p-4">
+                    <form action="<?= $basePath ?>/admin/<?= !empty($isEdit) ? 'account_edit' : 'account_add' ?>" method="post" enctype="multipart/form-data">
+                        <?php if (!empty($isEdit)): ?>
+                            <input type="hidden" name="id" value="<?= htmlspecialchars((string) ($account['id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                        <?php endif; ?>
 
-      <form action="<?= $basePath ?>/admin/<?= !empty($isEdit) ? 'account_edit' : 'account_add' ?>" method="post" enctype="multipart/form-data">
-        <?php if (!empty($isEdit)): ?>
-          <input type="hidden" name="id" value="<?= htmlspecialchars((string) ($account['id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
-        <?php endif; ?>
-        <table align="center" border="0" cellpadding="6">
-          <?php if (!empty($isEdit) && !empty($account['photo'])): ?>
-            <tr>
-              <td align="left">Foto Saat Ini</td>
-              <td align="left">
-                <img src="<?= $basePath . '/' . ltrim(htmlspecialchars((string) $account['photo'], ENT_QUOTES, 'UTF-8'), '/') ?>"
-                     alt="Foto Profil"
-                     style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #007bff;">
-              </td>
-            </tr>
-          <?php endif; ?>
-          <tr>
-            <td align="left" width="160">Foto Profil</td>
-            <td align="left" width="260">
-              <input type="file" name="photo" accept="image/*">
-            </td>
-          </tr>
-          <tr>
-            <td align="left">Nama Lengkap</td>
-            <td align="left">
-              <input required="required" type="text" name="name" value="<?= htmlspecialchars((string) ($account['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-            </td>
-          </tr>
-          <tr>
-            <td align="left">Username / Kode</td>
-            <td align="left">
-              <input required="required" type="text" name="username" value="<?= htmlspecialchars((string) ($account['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-            </td>
-          </tr>
-          <tr>
-            <td align="left">Password</td>
-            <td align="left">
-              <input required="required" type="password" name="password" value="<?= htmlspecialchars((string) ($account['password'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-            </td>
-          </tr>
-          <tr>
-            <td align="left">Alamat / Unit Kerja</td>
-            <td align="left">
-              <textarea cols="30" rows="3" name="address" required="required"><?= htmlspecialchars((string) ($account['address'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
-            </td>
-          </tr>
-          <tr>
-            <td align="left">Email</td>
-            <td align="left">
-              <input type="email" name="email" value="<?= htmlspecialchars((string) ($account['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-            </td>
-          </tr>
-          <tr>
-            <td align="left">No. HP / Mobile</td>
-            <td align="left">
-              <input type="text" name="mobile" value="<?= htmlspecialchars((string) ($account['mobile'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-            </td>
-          </tr>
-          <tr>
-            <td align="left">Role</td>
-            <td align="left">
-              <select name="role" id="role" required="required">
-                <option value="operator" <?= ($account['role'] ?? 'operator') === 'operator' ? 'selected' : '' ?>>operator (Target Survei Suara Rakyat)</option>
-                <option value="admin" <?= ($account['role'] ?? '') === 'admin' ? 'selected' : '' ?>>admin (Pengelola Sistem)</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td align="left" height="90">
-              <input type="submit" value="Submit" name="submit" />
-              <?php if (!empty($isEdit)): ?>
-                <input type="reset" value="Reset" />
-              <?php endif; ?>
-            </td>
-          </tr>
-        </table>
-      </form>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Nama Lengkap Operator / Loket</label>
+                                <input type="text" name="name" class="form-control" required
+                                       placeholder="Contoh: Budi Santoso - Loket 1"
+                                       value="<?= htmlspecialchars((string) ($account['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Username / Kode Unik</label>
+                                <input type="text" name="username" class="form-control" required
+                                       placeholder="Contoh: operator1"
+                                       value="<?= htmlspecialchars((string) ($account['username'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Password</label>
+                                <input type="password" name="password" class="form-control" required
+                                       value="<?= htmlspecialchars((string) ($account['password'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Role Akun</label>
+                                <select name="role" id="roleSelect" class="form-control font-weight-bold" required>
+                                    <option value="operator" <?= ($account['role'] ?? 'operator') === 'operator' ? 'selected' : '' ?>>
+                                        operator (Target Survei Suara Rakyat)
+                                    </option>
+                                    <option value="admin" <?= ($account['role'] ?? '') === 'admin' ? 'selected' : '' ?>>
+                                        admin (Pengelola Dashboard)
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Unit Kerja / Alamat</label>
+                            <textarea name="address" rows="2" class="form-control" required
+                                      placeholder="Contoh: Loket Pelayanan Terpadu Lt. 1"><?= htmlspecialchars((string) ($account['address'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Email</label>
+                                <input type="email" name="email" class="form-control"
+                                       placeholder="operator@ikm.local"
+                                       value="<?= htmlspecialchars((string) ($account['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">No. HP / WhatsApp</label>
+                                <input type="text" name="mobile" class="form-control"
+                                       placeholder="0812xxxxxxxx"
+                                       value="<?= htmlspecialchars((string) ($account['mobile'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" />
+                            </div>
+                        </div>
+
+                        <div class="form-row align-items-center">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold">Foto Profil Operator</label>
+                                <?php if (!empty($isEdit) && !empty($account['photo'])): ?>
+                                    <div class="mb-2">
+                                        <img src="<?= $basePath . '/' . ltrim(htmlspecialchars((string) $account['photo'], ENT_QUOTES, 'UTF-8'), '/') ?>"
+                                             alt="Foto Profil"
+                                             style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #1e3a8a;" />
+                                    </div>
+                                <?php endif; ?>
+                                <input type="file" name="photo" accept="image/*" class="form-control-file" />
+                            </div>
+
+                            <?php if (empty($isEdit)): ?>
+                            <div class="form-group col-md-6" id="initialQuestionCountGroup">
+                                <label class="font-weight-bold">Jumlah Pertanyaan Awal (1–10)</label>
+                                <select name="question_count" class="form-control font-weight-bold">
+                                    <?php for ($i = 1; $i <= 10; $i++): ?>
+                                        <option value="<?= $i ?>" <?= $i === 4 ? 'selected' : '' ?>>
+                                            <?= $i ?> Pertanyaan Radio (+ 1 Feedback Akhir)
+                                        </option>
+                                    <?php endfor; ?>
+                                </select>
+                                <small class="form-text text-muted">Dapat diubah kapan saja di menu Pertanyaan Dinamis.</small>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="d-flex justify-content-end pt-3 border-top mt-3" style="gap: 10px;">
+                            <a href="<?= $basePath ?>/admin/home" class="btn btn-secondary px-4">Batal</a>
+                            <button type="submit" name="submit" value="Submit" class="btn btn-primary px-4 font-weight-bold">
+                                <?= !empty($isEdit) ? 'Simpan Perubahan' : 'Tambahkan Operator' ?>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>

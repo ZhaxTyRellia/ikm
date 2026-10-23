@@ -1,200 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
-  <title><?= htmlspecialchars($title ?? 'Satisfaction Survey System', ENT_QUOTES, 'UTF-8') ?></title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
-  <link rel="stylesheet" href="<?= $basePath ?>/css/animate.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/owl.carousel.min.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/owl.theme.default.min.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/style2.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/css/style.css">
-  <style>
-    .operator-card {
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      padding: 24px 20px;
-      margin-bottom: 30px;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      border: 1px solid #eef2f7;
-      width: 100%;
-    }
-    .operator-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 14px 32px rgba(0, 123, 255, 0.16);
-    }
-    .operator-avatar {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #78d5ef;
-      margin: 0 auto 14px auto;
-      display: block;
-      background: #f8f9fa;
-    }
-    .operator-meta {
-      font-size: 13.5px;
-      color: #555;
-      text-align: left;
-      background: #f8fbff;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin: 12px 0;
-      line-height: 1.6;
-    }
-    .operator-meta div {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .suara-badge {
-      background: linear-gradient(135deg, #007bff, #00c6ff);
-      color: #fff;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 12px 0;
-    }
-    .suara-badge .number {
-      font-size: 28px;
-      font-weight: 800;
-      display: block;
-      line-height: 1.1;
-    }
-    <?php if (!empty($showFooter)): ?>
-    .footer {
-      position: fixed;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      background-color: #007bff;
-      color: white;
-      text-align: left;
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-      z-index: 999;
-    }
-    .footer .text {
-      padding-left: 20px;
-      font-size: 20px;
-      font-weight: 500;
-      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    }
-    <?php endif; ?>
-  </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title><?= htmlspecialchars($title ?? 'Dashboard Management Admin - IKM') ?></title>
+    <link rel="shortcut icon" href="<?= $basePath ?>/images/logo.png">
+    <link rel="stylesheet" href="<?= $basePath ?>/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="<?= $basePath ?>/css/style.css" />
+    <style>
+        body {
+            background-color: #f4f7fb;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
+        }
+        .admin-main {
+            flex: 1;
+            padding-top: 28px;
+            padding-bottom: 48px;
+        }
+        .admin-footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 18px 0;
+            font-size: 0.85rem;
+        }
+    </style>
 </head>
-
 <body>
-  <?php if (!empty($showFooter)): ?>
-  <div class="footer">
-    <div class="text">Publisher MTProject &copy; 2024</div>
-  </div>
-  <?php endif; ?>
-
-  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+<nav class="navbar navbar-expand-lg navbar-dark admin-navbar py-3">
     <div class="container">
-      <?php if (!empty($isHome)): ?>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
-          aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-          <span>&#9776;</span> Menu
+        <a class="navbar-brand font-weight-bold d-flex align-items-center" href="<?= $basePath ?>/admin/home">
+            <img src="<?= $basePath ?>/images/logo.png" alt="Logo" style="height: 32px; margin-right: 10px;" onerror="this.style.display='none'">
+            <span>Panel Management IKM</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <div style="font-size:25px;font-weight:800;color:white;font-family:calibri;">SATISFACTION SURVEY SYSTEM</div>
-      <?php else: ?>
-        <a class="navbar-brand" href="<?= $basePath ?>/admin/home">Home</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav"
-          aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-          <span>&#9776;</span> Menu
-        </button>
-      <?php endif; ?>
 
-      <div class="collapse navbar-collapse" id="ftco-nav">
-        <ul class="navbar-nav ml-auto">
-          <?php if (!empty($isAdmin)): ?>
-            <?php if (!empty($isHome)): ?>
-              <li class="nav-item <?= ($activeMenu ?? '') === 'home' ? 'active' : '' ?>">
-                <a href="<?= $basePath ?>/admin/home" class="nav-link">Home</a>
-              </li>
-            <?php endif; ?>
-            <li class="nav-item <?= ($activeMenu ?? '') === 'data' ? 'active' : '' ?>">
-              <a href="<?= $basePath ?>/admin/data" class="nav-link">Data</a>
-            </li>
-            <li class="nav-item <?= ($activeMenu ?? '') === 'question' ? 'active' : '' ?>">
-              <a href="<?= $basePath ?>/admin/question" class="nav-link">Question</a>
-            </li>
-            <li class="nav-item <?= ($activeMenu ?? '') === 'account' ? 'active' : '' ?>">
-              <a href="<?= $basePath ?>/admin/account" class="nav-link">Account</a>
-            </li>
-            <li class="nav-item cta">
-              <a href="<?= $basePath ?>/logout" class="nav-link"><span>logout</span></a>
-            </li>
-          <?php else: ?>
-            <li class="nav-item active">
-              <a href="<?= $basePath ?>/" class="nav-link">Home</a>
-            </li>
-            <li class="nav-item cta">
-              <a href="#" class="nav-link" data-toggle="modal" data-target="#loginModal"><span>Login Admin</span></a>
-            </li>
-          <?php endif; ?>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <?= $content ?>
-
-  <?php if (empty($isAdmin)): ?>
-  <!-- Modal Pop-up Login Admin -->
-  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content" style="border-radius:12px;overflow:hidden;">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title text-white font-weight-bold" id="loginModalLabel">SIGN IN ADMIN</h5>
-          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="collapse navbar-collapse" id="adminNavbar">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item <?= ($activeMenu ?? '') === 'home' ? 'active font-weight-bold' : '' ?>">
+                    <a class="nav-link" href="<?= $basePath ?>/admin/home">Management Operator</a>
+                </li>
+                <li class="nav-item <?= ($activeMenu ?? '') === 'question' ? 'active font-weight-bold' : '' ?>">
+                    <a class="nav-link" href="<?= $basePath ?>/admin/question">Pertanyaan Dinamis (1–10)</a>
+                </li>
+                <li class="nav-item <?= ($activeMenu ?? '') === 'data' ? 'active font-weight-bold' : '' ?>">
+                    <a class="nav-link" href="<?= $basePath ?>/admin/data">Rekap Data &amp; Feedback</a>
+                </li>
+                <li class="nav-item <?= ($activeMenu ?? '') === 'account' ? 'active font-weight-bold' : '' ?>">
+                    <a class="nav-link" href="<?= $basePath ?>/admin/account">Semua Akun</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center" style="gap: 10px;">
+                <a class="btn btn-outline-light btn-sm px-3" href="<?= $basePath ?>/" target="_blank">
+                    Lihat Halaman Publik &nearr;
+                </a>
+                <a class="btn btn-danger btn-sm px-3 font-weight-bold" href="<?= $basePath ?>/logout">
+                    Logout
+                </a>
+            </div>
         </div>
-        <form action="<?= $basePath ?>/login" method="post">
-          <div class="modal-body p-4">
-            <?php if (!empty($loginError)): ?>
-              <div class="alert alert-danger text-center py-2"><?= htmlspecialchars($loginError, ENT_QUOTES, 'UTF-8') ?></div>
-            <?php endif; ?>
-            <div class="form-group">
-              <label class="font-weight-bold">Username</label>
-              <input type="text" name="username" class="form-control" placeholder="Masukkan Username Admin" required>
-            </div>
-            <div class="form-group mb-0">
-              <label class="font-weight-bold">Password</label>
-              <input type="password" name="password" class="form-control" placeholder="Masukkan Password" required>
-            </div>
-          </div>
-          <div class="modal-footer bg-light">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-            <button type="submit" name="login" class="btn btn-primary px-4">Sign In</button>
-          </div>
-        </form>
-      </div>
     </div>
-  </div>
-  <?php endif; ?>
+</nav>
 
-  <script src="<?= $basePath ?>/js/jquery.min.js"></script>
-  <script src="<?= $basePath ?>/js/popper.min.js"></script>
-  <script src="<?= $basePath ?>/js/bootstrap.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.easing.1.3.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.waypoints.min.js"></script>
-  <script src="<?= $basePath ?>/js/owl.carousel.min.js"></script>
-  <script src="<?= $basePath ?>/js/jquery.animateNumber.min.js"></script>
-  <script src="<?= $basePath ?>/js/mainoperator.js"></script>
-  <?php if (!empty($loginError)): ?>
-  <script>
-    $(function () {
-      $('#loginModal').modal('show');
-    });
-  </script>
-  <?php endif; ?>
+<main class="admin-main">
+    <?= $content ?>
+</main>
+
+<?php if (!empty($showFooter)): ?>
+<footer class="admin-footer mt-auto">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div>&copy; <?= date('Y') ?> Panel Management Admin Survei IKM.</div>
+        <div><a href="<?= $basePath ?>/" class="text-light">Ke Halaman Utama (Welcome Screen) &rarr;</a></div>
+    </div>
+</footer>
+<?php endif; ?>
+
+<script src="<?= $basePath ?>/js/jquery-3.6.0.min.js"></script>
+<script src="<?= $basePath ?>/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

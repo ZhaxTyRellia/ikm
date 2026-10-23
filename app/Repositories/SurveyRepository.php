@@ -8,18 +8,19 @@ use PDO;
 
 class SurveyRepository
 {
-    public const QUESTION_CODES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+    public const MAX_QUESTIONS = 10;
 
     public const DEFAULT_QUESTIONS = [
-        'a' => 'Kesesuaian persyaratan pelayanan dengan jenis pelayananya ?',
-        'b' => 'Kemudahan prosedur Pelayanan yang Diberikan penyelenggara pelayanan ?',
-        'c' => 'Kecepatan Pelayanan yang Diberikan penyelenggara pelayanan ?',
-        'd' => 'Kesesuaian antara biaya yang dibayarkan dengan biaya yang telah ditetapkan ?',
-        'e' => 'Kesesuaian antara hasil pelayanan yang diberikan dengan ketentuan yang telah ditetapkan / permintaan awal pelanggan ?',
-        'f' => 'Kemampuan petugas dalam memberikan pelayanan ?',
-        'g' => 'Sikap (kesopanan dan keramahan) petugas dalam memberikan pelayanan ?',
-        'h' => 'kesesuaian antara pelayanan yang didapatkan dengan malumat pelayanan (standart pelayanan) yang ditetapkan ?',
-        'i' => 'Penanganan terhadap pengaduan, saran dan masukan ?',
+        1  => 'Bagaimana kesesuaian persyaratan pelayanan dengan jenis pelayanannya?',
+        2  => 'Bagaimana kemudahan prosedur pelayanan yang diberikan petugas?',
+        3  => 'Bagaimana kecepatan waktu petugas dalam memberikan pelayanan?',
+        4  => 'Bagaimana sikap (kesopanan dan keramahan) petugas saat melayani Anda?',
+        5  => 'Bagaimana kesesuaian biaya pelayanan dengan ketentuan yang ditetapkan?',
+        6  => 'Bagaimana kesesuaian hasil pelayanan dengan standar yang ditetapkan?',
+        7  => 'Bagaimana kemampuan dan kompetensi petugas dalam memberikan pelayanan?',
+        8  => 'Bagaimana kejelasan informasi dan maklumat pelayanan yang disampaikan?',
+        9  => 'Bagaimana kecepatan penanganan pengaduan, saran, dan masukan?',
+        10 => 'Bagaimana kenyamanan sarana dan prasarana di area pelayanan?',
     ];
 
     public const RATING_OPTIONS = [
@@ -27,6 +28,13 @@ class SurveyRepository
         'kurang puas' => 'tidak-puas.gif',
         'puas'        => 'puas.gif',
         'sangat puas' => 'sangat-puas.gif',
+    ];
+
+    public const RATING_SCORES = [
+        'tidak puas'  => 1,
+        'kurang puas' => 2,
+        'puas'        => 3,
+        'sangat puas' => 4,
     ];
 
     public function __construct(private readonly PDO $db)
@@ -53,18 +61,64 @@ class SurveyRepository
     }
 
     /**
-     * Returns all operator accounts along with their total survey votes (suara rakyat).
+     * Returns all operators enriched with question count, survey count, accumulated star rating (0-5), and service status.
      */
     public function getOperatorsWithTotals(): array
     {
-        $sql = "SELECT u.*, COUNT(d.`id_data`) AS `total_suara`
-                FROM `user` u
-                LEFT JOIN `data` d ON d.`counter` = CAST(u.`id` AS CHAR)
-                WHERE u.`role` = 'operator'
-                GROUP BY u.`id`
-                ORDER BY u.`id` ASC";
+        $operators = $this->db->query(
+            "SELECT * FROM `user` WHERE `role` = 'operator' ORDER BY `id` ASC"
+        )->fetchAll();
 
-        return $this->db->query($sql)->fetchAll();
+        $qCounts = $this->db->query(
+            'SELECT `id_user`, COUNT(`id_question`) FROM `question` GROUP BY `id_user`'
+        )->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        $allDataStmt = $this->db->query(
+            'SELECT `counter`, `q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9`,`q10` FROM `data`'
+        );
+        $dataByCounter = [];
+        foreach ($allDataStmt->fetchAll() as $row) {
+            $dataByCounter[(string) $row['counter']][] = $row;
+        }
+
+        foreach ($operators as &$op) {
+            $id = (int) $op['id'];
+            $rows = $dataByCounter[(string) $id] ?? [];
+            $totalSuara = count($rows);
+
+            $totalScore = 0;
+            $answeredCount = 0;
+            foreach ($rows as $r) {
+                for ($i = 1; $i <= self::MAX_QUESTIONS; $i++) {
+                    $ans = strtolower(trim((string) ($r["q{$i}"] ?? '')));
+                    if (isset(self::RATING_SCORES[$ans])) {
+                        $totalScore += self::RATING_SCORES[$ans];
+                        $answeredCount++;
+                    }
+                }
+            }
+
+            // Convert 1..4 scale to 1.25..5.00 star scale
+            $starRating = $answeredCount > 0 ? round(($totalScore / ($answeredCount * 4)) * 5, 1) : 0.0;
+
+            [$statusLabel, $statusClass] = match (true) {
+                $totalSuara === 0   => ['Belum Dinilai', 'secondary'],
+                $starRating >= 4.2  => ['Sangat Baik', 'success'],
+                $starRating >= 3.2  => ['Layanan Baik', 'info'],
+                $starRating >= 2.2  => ['Kurang Baik', 'warning'],
+                default             => ['Layanan Buruk', 'danger'],
+            };
+
+            $op['question_count'] = (int) ($qCounts[$id] ?? 4);
+            $op['total_suara']    = $totalSuara;
+            $op['star_rating']    = $starRating;
+            $op['stars_filled']   = (int) round($starRating);
+            $op['status_label']   = $statusLabel;
+            $op['status_class']   = $statusClass;
+        }
+        unset($op);
+
+        return $operators;
     }
 
     public function createUser(array $data): bool
@@ -81,7 +135,7 @@ class SurveyRepository
             $nextId,
             $data['name'] ?? '',
             $data['username'] ?? '',
-            $data['password'] ?? '',
+            $data['password'] ?? '123',
             $data['address'] ?? '',
             $data['email'] ?? '',
             $data['mobile'] ?? '',
@@ -90,7 +144,8 @@ class SurveyRepository
         ]);
 
         if ($ok && $role === 'operator') {
-            $this->seedDefaultQuestions((string) $nextId);
+            $initialCount = max(1, min(self::MAX_QUESTIONS, (int) ($data['question_count'] ?? 4)));
+            $this->seedDefaultQuestions($nextId, $initialCount);
         }
 
         return $ok;
@@ -100,6 +155,7 @@ class SurveyRepository
     {
         $existing = $this->getUserById($id);
         $photo = !empty($data['photo']) ? $data['photo'] : ($existing['photo'] ?? '');
+        $password = !empty($data['password']) ? $data['password'] : ($existing['password'] ?? '123');
 
         $stmt = $this->db->prepare(
             'UPDATE `user`
@@ -110,7 +166,7 @@ class SurveyRepository
         return $stmt->execute([
             $data['name'] ?? '',
             $data['username'] ?? '',
-            $data['password'] ?? '',
+            $password,
             $data['address'] ?? '',
             $data['email'] ?? '',
             $data['mobile'] ?? '',
@@ -122,47 +178,95 @@ class SurveyRepository
 
     public function deleteUser(int $id): bool
     {
-        $this->db->prepare('DELETE FROM `question` WHERE `id_text` LIKE ?')->execute(["{$id}+%"]);
+        $this->db->prepare('DELETE FROM `question` WHERE `id_user` = ?')->execute([$id]);
+        $this->db->prepare('DELETE FROM `data` WHERE `counter` = ?')->execute([(string) $id]);
         return $this->db->prepare('DELETE FROM `user` WHERE `id` = ?')->execute([$id]);
     }
 
-    public function seedDefaultQuestions(string $counter): void
+    public function seedDefaultQuestions(int $operatorId, int $count = 4): void
     {
+        $count = max(1, min(self::MAX_QUESTIONS, $count));
         $stmt = $this->db->prepare(
-            'INSERT IGNORE INTO `question` (`id_text`, `text`) VALUES (?, ?)'
+            'INSERT IGNORE INTO `question` (`id_user`, `q_order`, `text`) VALUES (?, ?, ?)'
         );
-        foreach (self::DEFAULT_QUESTIONS as $code => $text) {
-            $stmt->execute(["{$counter}+{$code}", $text]);
+        for ($i = 1; $i <= $count; $i++) {
+            $stmt->execute([$operatorId, $i, self::DEFAULT_QUESTIONS[$i]]);
         }
     }
 
+    /**
+     * Returns active questions for an operator (1..N, where 1 <= N <= 10).
+     *
+     * @return array<int, string>
+     */
     public function getQuestionsByCounter(string $counter): array
     {
-        $stmt = $this->db->prepare('SELECT `id_text`, `text` FROM `question` WHERE `id_text` LIKE ?');
-        $stmt->execute(["{$counter}+%"]);
-        $byId = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $operatorId = (int) $counter;
+        $stmt = $this->db->prepare(
+            'SELECT `q_order`, `text` FROM `question` WHERE `id_user` = ? ORDER BY `q_order` ASC LIMIT 10'
+        );
+        $stmt->execute([$operatorId]);
+        $questions = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        $questions = [];
-        foreach (self::QUESTION_CODES as $idx => $code) {
-            $questions[$idx + 1] = $byId["{$counter}+{$code}"] ?? self::DEFAULT_QUESTIONS[$code];
+        if (empty($questions)) {
+            $this->seedDefaultQuestions($operatorId, 4);
+            $stmt->execute([$operatorId]);
+            $questions = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
         }
 
-        return $questions;
+        // Re-index 1..N cleanly
+        $result = [];
+        $num = 1;
+        foreach ($questions as $text) {
+            if ($num <= self::MAX_QUESTIONS) {
+                $result[$num++] = (string) $text;
+            }
+        }
+
+        return $result;
     }
 
+    /**
+     * Saves 1..10 dynamic questions for an operator.
+     */
     public function updateQuestionsByCounter(string $counter, array $input): void
     {
-        $this->db->beginTransaction();
-        $stmt = $this->db->prepare(
-            'INSERT INTO `question` (`id_text`, `text`) VALUES (?, ?)
-             ON DUPLICATE KEY UPDATE `text` = VALUES(`text`)'
-        );
+        $operatorId = (int) $counter;
+        $questions = [];
+        $maxCount = isset($input['question_count'])
+            ? max(1, min(self::MAX_QUESTIONS, (int) $input['question_count']))
+            : self::MAX_QUESTIONS;
 
-        foreach (self::QUESTION_CODES as $idx => $code) {
-            $num = $idx + 1;
-            if (isset($input["q{$num}"])) {
-                $stmt->execute(["{$counter}+{$code}", (string) $input["q{$num}"]]);
+        if (isset($input['questions']) && is_array($input['questions'])) {
+            for ($i = 1; $i <= $maxCount; $i++) {
+                $trimmed = trim((string) ($input['questions'][$i] ?? ''));
+                if ($trimmed !== '') {
+                    $questions[] = $trimmed;
+                }
             }
+        } else {
+            for ($i = 1; $i <= $maxCount; $i++) {
+                $trimmed = trim((string) ($input["q{$i}"] ?? ''));
+                if ($trimmed !== '') {
+                    $questions[] = $trimmed;
+                }
+            }
+        }
+
+        if (empty($questions)) {
+            $questions[] = self::DEFAULT_QUESTIONS[1];
+        }
+
+        $questions = array_slice($questions, 0, self::MAX_QUESTIONS);
+
+        $this->db->beginTransaction();
+        $this->db->prepare('DELETE FROM `question` WHERE `id_user` = ?')->execute([$operatorId]);
+
+        $stmt = $this->db->prepare(
+            'INSERT INTO `question` (`id_user`, `q_order`, `text`) VALUES (?, ?, ?)'
+        );
+        foreach ($questions as $idx => $text) {
+            $stmt->execute([$operatorId, $idx + 1, $text]);
         }
 
         $this->db->commit();
@@ -173,7 +277,9 @@ class SurveyRepository
         $questions = $this->getQuestionsByCounter($counter);
         [$where, $params] = $this->buildFilter($counter, $awal, $akhir);
 
-        $stmt = $this->db->prepare("SELECT `q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9` FROM `data` {$where}");
+        $stmt = $this->db->prepare(
+            "SELECT `q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9`,`q10` FROM `data` {$where}"
+        );
         $stmt->execute($params);
         $rows = $stmt->fetchAll();
 
@@ -194,10 +300,13 @@ class SurveyRepository
         return $summary;
     }
 
+    /**
+     * Returns all survey responses & feedback notes (including skipped feedback) for an operator.
+     */
     public function getSuggestions(string $counter, ?string $awal = null, ?string $akhir = null): array
     {
-        [$where, $params] = $this->buildFilter($counter, $awal, $akhir, "AND TRIM(`suggestion`) != ''");
-        $stmt = $this->db->prepare("SELECT * FROM `data` {$where} ORDER BY `id_data` ASC");
+        [$where, $params] = $this->buildFilter($counter, $awal, $akhir);
+        $stmt = $this->db->prepare("SELECT * FROM `data` {$where} ORDER BY `id_data` DESC");
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
@@ -205,8 +314,8 @@ class SurveyRepository
     public function insertSurveyResponse(int $userId, string $counter, array $answers): bool
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO `data` (`id_user`,`counter`,`q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9`,`suggestion`)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
+            'INSERT INTO `data` (`id_user`,`counter`,`q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9`,`q10`,`suggestion`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
 
         return $stmt->execute([
@@ -221,13 +330,14 @@ class SurveyRepository
             $answers['q7'] ?? '',
             $answers['q8'] ?? '',
             $answers['q9'] ?? '',
-            $answers['suggestion'] ?? '',
+            $answers['q10'] ?? '',
+            trim((string) ($answers['suggestion'] ?? '')),
         ]);
     }
 
-    private function buildFilter(string $counter, ?string $awal, ?string $akhir, string $extra = ''): array
+    private function buildFilter(string $counter, ?string $awal, ?string $akhir): array
     {
-        $where = "WHERE `counter` = ? {$extra}";
+        $where = 'WHERE `counter` = ?';
         $params = [$counter];
 
         if ($awal && $akhir) {

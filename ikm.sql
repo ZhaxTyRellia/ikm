@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               10.11.6-MariaDB - mariadb.org binary distribution
--- Server OS:                    Win64
+-- Server version:               10.11.6-MariaDB
+-- Database:                     ikm (Slim Framework v4)
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -16,60 +16,65 @@
 CREATE DATABASE IF NOT EXISTS `ikm` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `ikm`;
 
-CREATE TABLE IF NOT EXISTS `data` (
-  `id_data` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `id_user` int(10) NOT NULL,
-  `counter` varchar(20) NOT NULL,
-  `time` datetime NOT NULL DEFAULT current_timestamp(),
-  `q1` varchar(20) NOT NULL,
-  `q2` varchar(20) NOT NULL,
-  `q3` varchar(20) NOT NULL,
-  `q4` varchar(20) NOT NULL,
-  `q5` varchar(20) NOT NULL,
-  `q6` varchar(20) NOT NULL,
-  `q7` varchar(20) NOT NULL,
-  `q8` varchar(20) NOT NULL,
-  `q9` varchar(20) NOT NULL,
-  `suggestion` text NOT NULL,
-  PRIMARY KEY (`id_data`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `question` (
-  `id_text` varchar(20) NOT NULL,
-  `text` text NOT NULL,
-  PRIMARY KEY (`id_text`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-DELETE FROM `question`;
-INSERT INTO `question` (`id_text`, `text`) VALUES
-	('1+a', 'Kesesuaian persyaratan pelayanan dengan jenis pelayananya ?'),
-	('1+b', 'Kemudahan prosedur Pelayanan yang Diberikan penyelenggara pelayanan ?'),
-	('1+c', 'Kecepatan Pelayanan yang Diberikan penyelenggara pelayanan ?'),
-	('1+d', 'Kesesuaian antara biaya yang dibayarkan dengan biaya yang telah ditetapkan ?'),
-	('1+e', 'Kesesuaian antara hasil pelayanan yang diberikan dengan ketentuan yang telah ditetapkan / permintaan awal pelanggan ?'),
-	('1+f', 'Kemampuan petugas dalam memberikan pelayanan ?'),
-	('1+g', 'Sikap (kesopanan dan keramahan) petugas dalam memberikan pelayanan ?'),
-	('1+h', 'kesesuaian antara pelayanan yang didapatkan dengan malumat pelayanan (standart pelayanan) yang ditetapkan ?'),
-	('1+i', 'Penanganan terhadap pengaduan, saran dan masukan ?');
-
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(10) NOT NULL,
   `name` varchar(100) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(100) NOT NULL DEFAULT '',
   `address` text NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `mobile` varchar(30) NOT NULL,
+  `email` varchar(100) NOT NULL DEFAULT '',
+  `mobile` varchar(30) NOT NULL DEFAULT '',
   `photo` varchar(255) NOT NULL DEFAULT '',
-  `role` enum('admin','operator') NOT NULL,
+  `role` enum('admin','operator') NOT NULL DEFAULT 'operator',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DELETE FROM `user`;
 INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `photo`, `role`) VALUES
-	(0, 'Administrators', 'admin', 'admin', 'Indonesia', 'administrator@mail.co.id', '085691996250', '', 'admin'),
-	(1, 'Operator Pelayanan 1', 'op1', '123', 'Perum Gunungsari Indah 36, Surabaya', 'operator1@mail.co.id', '081234567890', '', 'operator');
+	(0, 'Administrator Utama', 'admin', 'admin', 'Kantor Pusat Layanan Publik', 'admin@instansi.go.id', '085691996250', '', 'admin'),
+	(1, 'Budi Santoso, S.AP', 'op_loket1', '123', 'Loket Pelayanan Administrasi Terpadu 1', 'budi.loket1@instansi.go.id', '081234567801', '', 'operator'),
+	(2, 'Siti Rahmawati, A.Md', 'op_loket2', '123', 'Loket Informasi & Pengaduan Masyarakat 2', 'siti.loket2@instansi.go.id', '081234567802', '', 'operator');
+
+CREATE TABLE IF NOT EXISTS `question` (
+  `id_question` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id_user` int(10) NOT NULL,
+  `q_order` tinyint(3) unsigned NOT NULL,
+  `text` text NOT NULL,
+  PRIMARY KEY (`id_question`),
+  UNIQUE KEY `user_q_order` (`id_user`, `q_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DELETE FROM `question`;
+INSERT INTO `question` (`id_user`, `q_order`, `text`) VALUES
+	(1, 1, 'Bagaimana kesesuaian persyaratan pelayanan dengan jenis pelayanannya?'),
+	(1, 2, 'Bagaimana kemudahan prosedur pelayanan yang diberikan petugas?'),
+	(1, 3, 'Bagaimana kecepatan waktu petugas dalam memberikan pelayanan?'),
+	(1, 4, 'Bagaimana sikap (kesopanan dan keramahan) petugas saat melayani Anda?'),
+	(2, 1, 'Bagaimana kejelasan informasi dan solusi yang disampaikan petugas?'),
+	(2, 2, 'Bagaimana kecepatan dan ketanggapan petugas dalam menangani pengaduan/masukan?');
+
+CREATE TABLE IF NOT EXISTS `data` (
+  `id_data` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id_user` int(10) NOT NULL,
+  `counter` varchar(20) NOT NULL,
+  `time` datetime NOT NULL DEFAULT current_timestamp(),
+  `q1` varchar(20) NOT NULL DEFAULT '',
+  `q2` varchar(20) NOT NULL DEFAULT '',
+  `q3` varchar(20) NOT NULL DEFAULT '',
+  `q4` varchar(20) NOT NULL DEFAULT '',
+  `q5` varchar(20) NOT NULL DEFAULT '',
+  `q6` varchar(20) NOT NULL DEFAULT '',
+  `q7` varchar(20) NOT NULL DEFAULT '',
+  `q8` varchar(20) NOT NULL DEFAULT '',
+  `q9` varchar(20) NOT NULL DEFAULT '',
+  `q10` varchar(20) NOT NULL DEFAULT '',
+  `suggestion` text NOT NULL DEFAULT '',
+  PRIMARY KEY (`id_data`),
+  KEY `idx_counter_time` (`counter`, `time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DELETE FROM `data`;
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

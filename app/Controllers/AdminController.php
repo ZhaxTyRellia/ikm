@@ -21,9 +21,9 @@ class AdminController
     public function home(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $this->render($response, 'admin/home.php', [
-            'title'      => 'Dashboard Admin',
+            'title'      => 'Dashboard Management Admin',
             'activeMenu' => 'home',
-            'isHome'     => true,
+            'showFooter' => true,
             'operators'  => $this->repo->getOperatorsWithTotals(),
         ]);
     }
@@ -34,9 +34,9 @@ class AdminController
             'title'           => 'Hasil Survey Data',
             'activeMenu'      => 'data',
             'showFooter'      => true,
-            'heading'         => 'Hasil Survey Data Per Operator',
+            'heading'         => 'Hasil Survey & Feedback Per Operator',
             'targetRoute'     => '/admin/data_table?counter=',
-            'cardDescription' => 'Lihat rekapitulasi hasil suara rakyat & kritik saran untuk operator ini.',
+            'cardDescription' => 'Lihat rekapitulasi hasil suara rakyat, rating bintang, & catatan feedback operator ini.',
             'operators'       => $this->repo->getOperatorsWithTotals(),
         ]);
     }
@@ -45,12 +45,14 @@ class AdminController
     {
         [$counter, $awal, $akhir] = $this->extractFilterParams($request);
         $operator = $this->repo->getUserById((int) $counter);
+        $questions = $this->repo->getQuestionsByCounter($counter);
 
         return $this->render($response, 'admin/data_table.php', [
             'title'       => 'Data Survey ' . ($operator['name'] ?? "Operator {$counter}"),
             'activeMenu'  => 'data',
             'counter'     => $counter,
             'operator'    => $operator,
+            'questions'   => $questions,
             'awal'        => $awal,
             'akhir'       => $akhir,
             'summary'     => $this->repo->getSurveySummary($counter, $awal ?: null, $akhir ?: null),
@@ -83,12 +85,12 @@ class AdminController
     public function question(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $this->render($response, 'admin/counter_select.php', [
-            'title'           => 'Edit Survey Question',
+            'title'           => 'Management Pertanyaan Dinamis (1-10)',
             'activeMenu'      => 'question',
             'showFooter'      => true,
-            'heading'         => 'Edit Pertanyaan Survey Per Operator',
+            'heading'         => 'Atur Pertanyaan Dinamis (1–10) Per Operator',
             'targetRoute'     => '/admin/question_table?counter=',
-            'cardDescription' => 'Buka untuk melihat dan mengubah daftar pertanyaan indeks kepuasan operator ini.',
+            'cardDescription' => 'Pilih dan sesuaikan 1–10 pertanyaan survei beserta 1 form feedback akhir untuk operator ini.',
             'operators'       => $this->repo->getOperatorsWithTotals(),
         ]);
     }
@@ -99,11 +101,12 @@ class AdminController
         $operator = $this->repo->getUserById((int) $counter);
 
         return $this->render($response, 'admin/question_table.php', [
-            'title'      => 'Edit Pertanyaan ' . ($operator['name'] ?? "Operator {$counter}"),
-            'activeMenu' => 'question',
-            'counter'    => $counter,
-            'operator'   => $operator,
-            'questions'  => $this->repo->getQuestionsByCounter($counter),
+            'title'            => 'Atur Pertanyaan ' . ($operator['name'] ?? "Operator {$counter}"),
+            'activeMenu'       => 'question',
+            'counter'          => $counter,
+            'operator'         => $operator,
+            'questions'        => $this->repo->getQuestionsByCounter($counter),
+            'defaultQuestions' => SurveyRepository::DEFAULT_QUESTIONS,
         ]);
     }
 
@@ -113,13 +116,13 @@ class AdminController
         $counter = (string) ($body['counter'] ?? $request->getQueryParams()['counter'] ?? '1');
         $this->repo->updateQuestionsByCounter($counter, $body);
 
-        return $this->redirect($response, '/admin/question');
+        return $this->alertRedirect($response, 'Daftar pertanyaan operator berhasil disimpan!', '/admin/home');
     }
 
     public function account(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $this->render($response, 'admin/account.php', [
-            'title'      => 'Account List',
+            'title'      => 'Management Operator & Admin',
             'activeMenu' => 'account',
             'showFooter' => true,
             'users'      => $this->repo->getAllUsers(),
@@ -129,7 +132,7 @@ class AdminController
     public function accountAddForm(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $this->render($response, 'admin/account_form.php', [
-            'title'      => 'Tambah Akun / Target Operator',
+            'title'      => 'Tambah Target Operator / Admin',
             'activeMenu' => 'account',
             'isEdit'     => false,
             'account'    => [],
@@ -146,7 +149,7 @@ class AdminController
 
         try {
             if ($this->repo->createUser($data)) {
-                return $this->redirect($response, '/admin/account');
+                return $this->redirect($response, '/admin/home');
             }
         } catch (\Throwable) {
         }
@@ -160,11 +163,11 @@ class AdminController
         $account = $this->repo->getUserById($id);
 
         if (!$account) {
-            return $this->redirect($response, '/admin/account');
+            return $this->redirect($response, '/admin/home');
         }
 
         return $this->render($response, 'admin/account_form.php', [
-            'title'      => 'Edit Akun / Identitas Operator',
+            'title'      => 'Edit Identitas Operator / Admin',
             'activeMenu' => 'account',
             'isEdit'     => true,
             'account'    => $account,
@@ -183,12 +186,12 @@ class AdminController
 
         try {
             if ($this->repo->updateUser($id, $data)) {
-                return $this->alertRedirect($response, 'Success to Change data', '/admin/account');
+                return $this->alertRedirect($response, 'Data identitas berhasil diperbarui!', '/admin/home');
             }
         } catch (\Throwable) {
         }
 
-        return $this->alertRedirect($response, 'The something is wrong !!!', '/admin/account_edit?id=' . $id);
+        return $this->alertRedirect($response, 'Gagal memperbarui data!', '/admin/account_edit?id=' . $id);
     }
 
     public function accountDelete(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -198,7 +201,7 @@ class AdminController
             $this->repo->deleteUser((int) $id);
         }
 
-        return $this->redirect($response, '/admin/account');
+        return $this->redirect($response, '/admin/home');
     }
 
     private function handlePhotoUpload(ServerRequestInterface $request): ?string
