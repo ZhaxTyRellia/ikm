@@ -435,8 +435,8 @@
                     <h3 class="op-thumb-name" title="<?= htmlspecialchars((string) $op['name'], ENT_QUOTES, 'UTF-8') ?>">
                         <?= htmlspecialchars((string) $op['name'], ENT_QUOTES, 'UTF-8') ?>
                     </h3>
-                    <div class="op-thumb-unit" title="<?= htmlspecialchars((string) ($op['address'] ?: '@' . $op['username']), ENT_QUOTES, 'UTF-8') ?>">
-                        <?= htmlspecialchars((string) ($op['address'] ?: '@' . $op['username']), ENT_QUOTES, 'UTF-8') ?>
+                    <div class="op-thumb-unit" title="<?= htmlspecialchars((string) ($op['address'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars((string) ($op['address'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>
                     </div>
 
                     <div class="op-thumb-stars" title="Rating <?= $starRating ?> / 5.0">
@@ -454,8 +454,8 @@
 
                     <div class="op-thumb-meta">
                         <div><strong><?= $totalSuara ?></strong> Disurvei &bull; <strong><?= $qCount ?></strong> Soal</div>
-                        <div class="text-truncate" title="<?= htmlspecialchars((string) ($op['mobile'] ?: $op['email'] ?: '@' . $op['username']), ENT_QUOTES, 'UTF-8') ?>">
-                            <?= htmlspecialchars((string) ($op['mobile'] ?: $op['email'] ?: '@' . $op['username']), ENT_QUOTES, 'UTF-8') ?>
+                        <div class="text-truncate" title="<?= htmlspecialchars((string) ($op['mobile'] ?: $op['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>">
+                            <?= htmlspecialchars((string) ($op['mobile'] ?: $op['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>
                         </div>
                     </div>
 

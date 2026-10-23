@@ -14,7 +14,6 @@
     <h2 align="center"><strong>Data Survey: <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></strong></h2>
     <?php if (!empty($operator)): ?>
         <p align="center">
-            Username: @<?= htmlspecialchars((string) $operator['username'], ENT_QUOTES, 'UTF-8') ?> |
             Alamat/Unit: <?= htmlspecialchars((string) ($operator['address'] ?: '-'), ENT_QUOTES, 'UTF-8') ?> |
             Email: <?= htmlspecialchars((string) ($operator['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?> |
             No. HP: <?= htmlspecialchars((string) ($operator['mobile'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>
@@ -231,8 +230,7 @@
         </a>
         <nav class="nav-links">
             <a href="<?= $basePath ?>/admin/home" class="<?= ($activeMenu ?? 'home') === 'home' ? 'active' : '' ?>">Management Operator</a>
-            <a href="<?= $basePath ?>/admin/account_add" class="<?= ($section ?? '') === 'account_form' && empty($isEdit) ? 'active' : '' ?>">+ Tambah Operator</a>
-            <a href="<?= $basePath ?>/admin/account" class="<?= ($activeMenu ?? '') === 'account' && ($section ?? '') === 'account_list' ? 'active' : '' ?>">Semua Akun</a>
+            <a href="<?= $basePath ?>/admin/account_add" class="<?= ($activeMenu ?? '') === 'account_add' ? 'active' : '' ?>">+ Tambah Operator</a>
             <a href="<?= $basePath ?>/" target="_blank" style="border: 1px solid rgba(255,255,255,0.25);">Lihat Home &nearr;</a>
             <a href="<?= $basePath ?>/logout" style="background:#dc2626;color:#fff;">Logout</a>
         </nav>
@@ -459,11 +457,14 @@
         </div>
 
     <?php elseif (($section ?? '') === 'account_form'): ?>
-        <!-- SECTION: TAMBAH / EDIT OPERATOR -->
+        <!-- SECTION: TAMBAH / EDIT PROFIL TARGET OPERATOR (MURNI UNTUK DISURVEI, TANPA LOGIN) -->
         <div class="row justify-content-center">
             <div class="col-lg-7">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="font-weight-bold mb-0"><?= !empty($isEdit) ? 'Edit Profil Operator / Akun' : 'Tambah Operator Baru' ?></h4>
+                    <div>
+                        <h4 class="font-weight-bold mb-0"><?= !empty($isEdit) ? 'Edit Profil Target Operator' : 'Tambah Target Operator Baru' ?></h4>
+                        <p class="text-muted small mb-0">Data identitas lengkap operator ini ditampilkan pada Home untuk disurvei oleh pengunjung.</p>
+                    </div>
                     <a href="<?= $basePath ?>/admin/home" class="btn btn-outline-secondary btn-sm font-weight-bold">&larr; Kembali</a>
                 </div>
                 <div class="card border-0 shadow-sm">
@@ -472,46 +473,41 @@
                             <?php if (!empty($isEdit)): ?>
                                 <input type="hidden" name="id" value="<?= htmlspecialchars((string) ($account['id'] ?? '')) ?>" />
                             <?php endif; ?>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Nama Lengkap Operator</label>
-                                    <input type="text" name="name" class="form-control form-control-sm" required value="<?= htmlspecialchars((string) ($account['name'] ?? '')) ?>" />
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Username / Kode</label>
-                                    <input type="text" name="username" class="form-control form-control-sm" required value="<?= htmlspecialchars((string) ($account['username'] ?? '')) ?>" />
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Password</label>
-                                    <input type="password" name="password" class="form-control form-control-sm" required value="<?= htmlspecialchars((string) ($account['password'] ?? '')) ?>" />
-                                </div>
-                                <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Role</label>
-                                    <select name="role" class="form-control form-control-sm font-weight-bold">
-                                        <option value="operator" <?= ($account['role'] ?? 'operator') === 'operator' ? 'selected' : '' ?>>operator (Target Survei)</option>
-                                        <option value="admin" <?= ($account['role'] ?? '') === 'admin' ? 'selected' : '' ?>>admin (Pengelola)</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label class="small font-weight-bold">Nama Lengkap Operator / Petugas Loket</label>
+                                <input type="text" name="name" class="form-control form-control-sm" required
+                                       placeholder="Contoh: Budi Santoso, S.AP"
+                                       value="<?= htmlspecialchars((string) ($account['name'] ?? '')) ?>" />
                             </div>
                             <div class="form-group">
-                                <label class="small font-weight-bold">Unit Kerja / Alamat</label>
-                                <input type="text" name="address" class="form-control form-control-sm" required value="<?= htmlspecialchars((string) ($account['address'] ?? '')) ?>" />
+                                <label class="small font-weight-bold">Unit Kerja / Loket / Alamat</label>
+                                <input type="text" name="address" class="form-control form-control-sm" required
+                                       placeholder="Contoh: Loket Pelayanan Administrasi Terpadu 1"
+                                       value="<?= htmlspecialchars((string) ($account['address'] ?? '')) ?>" />
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label class="small font-weight-bold">Email</label>
-                                    <input type="email" name="email" class="form-control form-control-sm" value="<?= htmlspecialchars((string) ($account['email'] ?? '')) ?>" />
+                                    <input type="email" name="email" class="form-control form-control-sm"
+                                           placeholder="operator@instansi.go.id"
+                                           value="<?= htmlspecialchars((string) ($account['email'] ?? '')) ?>" />
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label class="small font-weight-bold">No. HP / WhatsApp</label>
-                                    <input type="text" name="mobile" class="form-control form-control-sm" value="<?= htmlspecialchars((string) ($account['mobile'] ?? '')) ?>" />
+                                    <input type="text" name="mobile" class="form-control form-control-sm"
+                                           placeholder="0812xxxxxxxx"
+                                           value="<?= htmlspecialchars((string) ($account['mobile'] ?? '')) ?>" />
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-6">
-                                    <label class="small font-weight-bold">Foto Profil</label>
+                                    <label class="small font-weight-bold">Foto Profil Operator</label>
+                                    <?php if (!empty($isEdit) && !empty($account['photo'])): ?>
+                                        <div class="mb-2">
+                                            <img src="<?= $basePath . '/' . ltrim(htmlspecialchars((string) $account['photo']), '/') ?>"
+                                                 alt="Foto" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #1e3a8a;" />
+                                        </div>
+                                    <?php endif; ?>
                                     <input type="file" name="photo" accept="image/*" class="form-control-file small" />
                                 </div>
                                 <?php if (empty($isEdit)): ?>
@@ -527,53 +523,11 @@
                             </div>
                             <div class="text-right pt-2 border-top">
                                 <a href="<?= $basePath ?>/admin/home" class="btn btn-secondary btn-sm">Batal</a>
-                                <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">Simpan</button>
+                                <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">Simpan Operator</button>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
-
-    <?php elseif (($section ?? '') === 'account_list'): ?>
-        <!-- SECTION: DAFTAR SEMUA AKUN -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="font-weight-bold mb-0">Daftar Semua Akun (Admin &amp; Operator)</h4>
-            <a href="<?= $basePath ?>/admin/account_add" class="btn btn-primary btn-sm font-weight-bold">+ Tambah Akun</a>
-        </div>
-        <div class="card border-0 shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover table-sm mb-0 small">
-                    <thead class="thead-light">
-                        <tr>
-                            <th class="text-center">ID</th>
-                            <th>Nama</th>
-                            <th>Username</th>
-                            <th>Unit / Alamat</th>
-                            <th>Kontak</th>
-                            <th class="text-center">Role</th>
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach (($users ?? []) as $u): ?>
-                            <tr>
-                                <td class="text-center font-weight-bold"><?= (int) $u['id'] ?></td>
-                                <td class="font-weight-bold"><?= htmlspecialchars((string) $u['name']) ?></td>
-                                <td>@<?= htmlspecialchars((string) $u['username']) ?></td>
-                                <td><?= htmlspecialchars((string) ($u['address'] ?: '-')) ?></td>
-                                <td><?= htmlspecialchars(trim(($u['email'] ?: '') . ' ' . ($u['mobile'] ?: ''))) ?></td>
-                                <td class="text-center"><span class="badge badge-<?= ($u['role'] ?? '') === 'admin' ? 'dark' : 'info' ?>"><?= htmlspecialchars((string) $u['role']) ?></span></td>
-                                <td class="text-center">
-                                    <a href="<?= $basePath ?>/admin/account_edit?id=<?= (int) $u['id'] ?>" class="btn btn-outline-primary btn-sm py-0 px-2">Edit</a>
-                                    <?php if ((int) $u['id'] !== 0): ?>
-                                        <a href="<?= $basePath ?>/admin/account_delete?id=<?= (int) $u['id'] ?>" onclick="return confirm('Hapus akun ini?');" class="btn btn-outline-danger btn-sm py-0 px-2">Hapus</a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
             </div>
         </div>
 
@@ -610,7 +564,7 @@
                             <img src="<?= htmlspecialchars($photoUrl) ?>" alt="<?= htmlspecialchars($op['name']) ?>" class="admin-op-avatar" />
                             <div style="min-width:0;">
                                 <h5 class="admin-op-title text-truncate" title="<?= htmlspecialchars($op['name']) ?>"><?= htmlspecialchars($op['name']) ?></h5>
-                                <div class="admin-op-sub">@<?= htmlspecialchars($op['username']) ?> &bull; <span class="badge badge-<?= htmlspecialchars($op['status_class'] ?? 'secondary') ?>"><?= htmlspecialchars($op['status_label'] ?? 'Belum Dinilai') ?></span></div>
+                                <div class="admin-op-sub"><span class="badge badge-<?= htmlspecialchars($op['status_class'] ?? 'secondary') ?>"><?= htmlspecialchars($op['status_label'] ?? 'Belum Dinilai') ?></span></div>
                             </div>
                         </div>
 

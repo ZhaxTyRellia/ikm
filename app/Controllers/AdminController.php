@@ -106,19 +106,14 @@ class AdminController
 
     public function account(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        return $this->render($response, [
-            'title'      => 'Management Operator & Admin',
-            'activeMenu' => 'account',
-            'section'    => 'account_list',
-            'users'      => $this->repo->getAllUsers(),
-        ]);
+        return $this->home($request, $response);
     }
 
     public function accountAddForm(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         return $this->render($response, [
-            'title'      => 'Tambah Target Operator / Admin',
-            'activeMenu' => 'account',
+            'title'      => 'Tambah Target Operator',
+            'activeMenu' => 'account_add',
             'section'    => 'account_form',
             'isEdit'     => false,
             'account'    => [],
@@ -140,7 +135,7 @@ class AdminController
         } catch (\Throwable) {
         }
 
-        return $this->alertRedirect($response, 'Gagal membuat akun! Pastikan username belum digunakan.', '/admin/account_add');
+        return $this->alertRedirect($response, 'Gagal menambahkan operator!', '/admin/account_add');
     }
 
     public function accountEditForm(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
@@ -148,13 +143,13 @@ class AdminController
         $id = (int) ($request->getQueryParams()['id'] ?? -1);
         $account = $this->repo->getUserById($id);
 
-        if (!$account) {
+        if (!$account || (int) ($account['id'] ?? 0) === 0) {
             return $this->redirect($response, '/admin/home');
         }
 
         return $this->render($response, [
-            'title'      => 'Edit Identitas Operator / Admin',
-            'activeMenu' => 'account',
+            'title'      => 'Edit Profil Operator',
+            'activeMenu' => 'home',
             'section'    => 'account_form',
             'isEdit'     => true,
             'account'    => $account,

@@ -43,14 +43,14 @@ class SurveyRepository
 
     public function findUserByCredentials(string $username, string $password): ?array
     {
-        $stmt = $this->db->prepare('SELECT * FROM `user` WHERE `username` = ? AND `password` = ? LIMIT 1');
+        if ($username === '' || $password === '') {
+            return null;
+        }
+        $stmt = $this->db->prepare(
+            "SELECT * FROM `user` WHERE `username` = ? AND `password` = ? AND `role` = 'admin' LIMIT 1"
+        );
         $stmt->execute([$username, $password]);
         return $stmt->fetch() ?: null;
-    }
-
-    public function getAllUsers(): array
-    {
-        return $this->db->query('SELECT * FROM `user` ORDER BY `id` ASC')->fetchAll();
     }
 
     public function getUserById(int $id): ?array
@@ -124,26 +124,22 @@ class SurveyRepository
     public function createUser(array $data): bool
     {
         $nextId = (int) $this->db->query('SELECT COALESCE(MAX(`id`), 0) + 1 FROM `user`')->fetchColumn();
-        $role = ($data['role'] ?? 'operator') === 'admin' ? 'admin' : 'operator';
 
         $stmt = $this->db->prepare(
-            'INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `photo`, `role`)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            "INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `photo`, `role`)
+             VALUES (?, ?, '', '', ?, ?, ?, ?, 'operator')"
         );
 
         $ok = $stmt->execute([
             $nextId,
-            $data['name'] ?? '',
-            $data['username'] ?? '',
-            $data['password'] ?? '123',
-            $data['address'] ?? '',
-            $data['email'] ?? '',
-            $data['mobile'] ?? '',
+            trim((string) ($data['name'] ?? '')),
+            trim((string) ($data['address'] ?? '')),
+            trim((string) ($data['email'] ?? '')),
+            trim((string) ($data['mobile'] ?? '')),
             $data['photo'] ?? '',
-            $role,
         ]);
 
-        if ($ok && $role === 'operator') {
+        if ($ok) {
             $initialCount = max(1, min(self::MAX_QUESTIONS, (int) ($data['question_count'] ?? 4)));
             $this->seedDefaultQuestions($nextId, $initialCount);
         }
@@ -155,23 +151,19 @@ class SurveyRepository
     {
         $existing = $this->getUserById($id);
         $photo = !empty($data['photo']) ? $data['photo'] : ($existing['photo'] ?? '');
-        $password = !empty($data['password']) ? $data['password'] : ($existing['password'] ?? '123');
 
         $stmt = $this->db->prepare(
             'UPDATE `user`
-             SET `name` = ?, `username` = ?, `password` = ?, `address` = ?, `email` = ?, `mobile` = ?, `photo` = ?, `role` = ?
+             SET `name` = ?, `address` = ?, `email` = ?, `mobile` = ?, `photo` = ?
              WHERE `id` = ?'
         );
 
         return $stmt->execute([
-            $data['name'] ?? '',
-            $data['username'] ?? '',
-            $password,
-            $data['address'] ?? '',
-            $data['email'] ?? '',
-            $data['mobile'] ?? '',
+            trim((string) ($data['name'] ?? '')),
+            trim((string) ($data['address'] ?? '')),
+            trim((string) ($data['email'] ?? '')),
+            trim((string) ($data['mobile'] ?? '')),
             $photo,
-            ($data['role'] ?? 'operator') === 'admin' ? 'admin' : 'operator',
             $id,
         ]);
     }
