@@ -85,13 +85,12 @@ class AdminController
         $operator = $this->repo->getUserById((int) $counter);
 
         return $this->render($response, [
-            'title'            => 'Atur Pertanyaan ' . ($operator['name'] ?? "Operator {$counter}"),
-            'activeMenu'       => 'question',
-            'section'          => 'question',
-            'counter'          => $counter,
-            'operator'         => $operator,
-            'questions'        => $this->repo->getQuestionsByCounter($counter),
-            'defaultQuestions' => SurveyRepository::DEFAULT_QUESTIONS,
+            'title'      => 'Atur Pertanyaan ' . ($operator['name'] ?? "Petugas {$counter}"),
+            'activeMenu' => 'question',
+            'section'    => 'question',
+            'counter'    => $counter,
+            'operator'   => $operator,
+            'questions'  => $this->repo->getQuestionsByCounter($counter),
         ]);
     }
 

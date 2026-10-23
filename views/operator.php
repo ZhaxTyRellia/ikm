@@ -143,7 +143,7 @@
           <?php endforeach; ?>
 
           <!-- Langkah Terakhir: Kritik & Saran -->
-          <div class="form-step">
+          <div class="form-step <?= $totalQuestions === 0 ? 'form-step-active' : '' ?>">
             <div style="text-align:center;">
               <span class="step-badge" style="background:#0f766e;">Kritik &amp; Saran</span>
             </div>

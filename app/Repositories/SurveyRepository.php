@@ -10,19 +10,6 @@ class SurveyRepository
 {
     public const MAX_QUESTIONS = 10;
 
-    public const DEFAULT_QUESTIONS = [
-        1  => 'Bagaimana kesesuaian persyaratan pelayanan dengan jenis pelayanannya?',
-        2  => 'Bagaimana kemudahan prosedur pelayanan yang diberikan petugas?',
-        3  => 'Bagaimana kecepatan waktu petugas dalam memberikan pelayanan?',
-        4  => 'Bagaimana sikap (kesopanan dan keramahan) petugas saat melayani Anda?',
-        5  => 'Bagaimana kesesuaian biaya pelayanan dengan ketentuan yang ditetapkan?',
-        6  => 'Bagaimana kesesuaian hasil pelayanan dengan standar yang ditetapkan?',
-        7  => 'Bagaimana kemampuan dan kompetensi petugas dalam memberikan pelayanan?',
-        8  => 'Bagaimana kejelasan informasi dan maklumat pelayanan yang disampaikan?',
-        9  => 'Bagaimana kecepatan penanganan pengaduan, saran, dan masukan?',
-        10 => 'Bagaimana kenyamanan sarana dan prasarana di area pelayanan?',
-    ];
-
     public const RATING_OPTIONS = [
         'tidak puas'  => 'sgt-tdk-puas.gif',
         'kurang puas' => 'tidak-puas.gif',
@@ -42,7 +29,7 @@ class SurveyRepository
     }
 
     /**
-     * Executes database schema migration & initial seed directly from PHP.
+     * Executes database schema migration & truncates all tables back to 0 (only Admin login & base settings exist).
      */
     public static function migrateAndSeed(PDO $pdo, string $dbName = 'ikm'): void
     {
@@ -58,6 +45,7 @@ class SurveyRepository
                 `setting_value` text NOT NULL,
                 PRIMARY KEY (`setting_key`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci',
+            'TRUNCATE TABLE `settings`',
 
             "INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
                 ('company_logo', 'images/logo.png'),
@@ -77,11 +65,10 @@ class SurveyRepository
                 `role` enum('admin','operator') NOT NULL DEFAULT 'operator',
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
+            'TRUNCATE TABLE `user`',
 
             "INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `photo`, `role`) VALUES
-                (0, 'Administrator Utama', 'admin', 'admin', 'Kantor Pusat Layanan Publik', 'admin@instansi.go.id', '085691996250', '', 'admin'),
-                (1, 'Budi Santoso, S.AP', '', '', 'Loket Pelayanan Administrasi Terpadu 1', 'budi.loket1@instansi.go.id', '081234567801', '', 'operator'),
-                (2, 'Siti Rahmawati, A.Md', '', '', 'Loket Informasi & Pengaduan Masyarakat 2', 'siti.loket2@instansi.go.id', '081234567802', '', 'operator')",
+                (0, 'Administrator', 'admin', 'admin', 'Kantor Layanan Publik', '', '', '', 'admin')",
 
             'DROP TABLE IF EXISTS `question`',
             'CREATE TABLE `question` (
@@ -91,15 +78,8 @@ class SurveyRepository
                 `text` text NOT NULL,
                 PRIMARY KEY (`id_question`),
                 UNIQUE KEY `user_q_order` (`id_user`, `q_order`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci',
-
-            "INSERT INTO `question` (`id_user`, `q_order`, `text`) VALUES
-                (1, 1, 'Bagaimana kesesuaian persyaratan pelayanan dengan jenis pelayanannya?'),
-                (1, 2, 'Bagaimana kemudahan prosedur pelayanan yang diberikan petugas?'),
-                (1, 3, 'Bagaimana kecepatan waktu petugas dalam memberikan pelayanan?'),
-                (1, 4, 'Bagaimana sikap (kesopanan dan keramahan) petugas saat melayani Anda?'),
-                (2, 1, 'Bagaimana kejelasan informasi dan solusi yang disampaikan petugas?'),
-                (2, 2, 'Bagaimana kecepatan dan ketanggapan petugas dalam menangani pengaduan/masukan?')",
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci',
+            'TRUNCATE TABLE `question`',
 
             'DROP TABLE IF EXISTS `data`',
             "CREATE TABLE `data` (
@@ -120,7 +100,8 @@ class SurveyRepository
                 `suggestion` text NOT NULL DEFAULT '',
                 PRIMARY KEY (`id_data`),
                 KEY `idx_counter_time` (`counter`, `time`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
+            ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
+            'TRUNCATE TABLE `data`',
         ];
 
         foreach ($statements as $stmt) {
@@ -129,7 +110,7 @@ class SurveyRepository
     }
 
     /**
-     * Resets the database back to a fresh initial state directly in PHP.
+     * Resets/truncates the database back to a completely empty initial state (0 operators, 0 questions, 0 survey data).
      */
     public function resetDatabase(): void
     {
@@ -146,8 +127,8 @@ class SurveyRepository
     {
         $defaults = [
             'company_logo' => 'images/logo.png',
-            'marquee_text' => 'Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami.',
-            'footer_text'  => 'Portal Survei IKM & Suara Rakyat',
+            'marquee_text' => 'Terima kasih atas partisipasi dan penilaian Anda demi peningkatan mutu pelayanan kami.',
+            'footer_text'  => 'Portal Survei Indeks Kepuasan Masyarakat',
         ];
 
         try {
@@ -257,7 +238,6 @@ class SurveyRepository
                 }
             }
 
-            // Convert 1..4 scale to 1.25..5.00 star scale
             $starRating = $answeredCount > 0 ? round(($totalScore / ($answeredCount * 4)) * 5, 1) : 0.0;
 
             [$statusLabel, $statusClass] = match (true) {
@@ -268,7 +248,7 @@ class SurveyRepository
                 default             => ['Perlu Evaluasi', 'danger'],
             };
 
-            $op['question_count'] = (int) ($qCounts[$id] ?? 4);
+            $op['question_count'] = (int) ($qCounts[$id] ?? 0);
             $op['total_suara']    = $totalSuara;
             $op['star_rating']    = $starRating;
             $op['stars_filled']   = (int) round($starRating);
@@ -289,7 +269,7 @@ class SurveyRepository
              VALUES (?, ?, '', '', ?, ?, ?, ?, 'operator')"
         );
 
-        $ok = $stmt->execute([
+        return $stmt->execute([
             $nextId,
             trim((string) ($data['name'] ?? '')),
             trim((string) ($data['address'] ?? '')),
@@ -297,13 +277,6 @@ class SurveyRepository
             trim((string) ($data['mobile'] ?? '')),
             $data['photo'] ?? '',
         ]);
-
-        if ($ok) {
-            $initialCount = max(1, min(self::MAX_QUESTIONS, (int) ($data['question_count'] ?? 4)));
-            $this->seedDefaultQuestions($nextId, $initialCount);
-        }
-
-        return $ok;
     }
 
     public function updateUser(int $id, array $data): bool
@@ -334,19 +307,8 @@ class SurveyRepository
         return $this->db->prepare('DELETE FROM `user` WHERE `id` = ?')->execute([$id]);
     }
 
-    public function seedDefaultQuestions(int $operatorId, int $count = 4): void
-    {
-        $count = max(1, min(self::MAX_QUESTIONS, $count));
-        $stmt = $this->db->prepare(
-            'INSERT IGNORE INTO `question` (`id_user`, `q_order`, `text`) VALUES (?, ?, ?)'
-        );
-        for ($i = 1; $i <= $count; $i++) {
-            $stmt->execute([$operatorId, $i, self::DEFAULT_QUESTIONS[$i]]);
-        }
-    }
-
     /**
-     * Returns active questions for an operator (1..N, where 1 <= N <= 10).
+     * Returns manually configured questions for an operator (1..N, where 0 <= N <= 10).
      *
      * @return array<int, string>
      */
@@ -359,13 +321,6 @@ class SurveyRepository
         $stmt->execute([$operatorId]);
         $questions = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        if (empty($questions)) {
-            $this->seedDefaultQuestions($operatorId, 4);
-            $stmt->execute([$operatorId]);
-            $questions = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-        }
-
-        // Re-index 1..N cleanly
         $result = [];
         $num = 1;
         foreach ($questions as $text) {
@@ -378,7 +333,7 @@ class SurveyRepository
     }
 
     /**
-     * Saves 1..10 dynamic questions for an operator.
+     * Saves 1..10 manually entered questions for an operator.
      */
     public function updateQuestionsByCounter(string $counter, array $input): void
     {
@@ -402,10 +357,6 @@ class SurveyRepository
                     $questions[] = $trimmed;
                 }
             }
-        }
-
-        if (empty($questions)) {
-            $questions[] = self::DEFAULT_QUESTIONS[1];
         }
 
         $questions = array_slice($questions, 0, self::MAX_QUESTIONS);
@@ -452,7 +403,7 @@ class SurveyRepository
     }
 
     /**
-     * Returns all survey responses & feedback notes (including skipped feedback) for an operator.
+     * Returns all survey responses & feedback notes for an operator.
      */
     public function getSuggestions(string $counter, ?string $awal = null, ?string $akhir = null): array
     {
