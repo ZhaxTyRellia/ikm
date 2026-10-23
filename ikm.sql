@@ -2,7 +2,6 @@
 -- Host:                         127.0.0.1
 -- Server version:               10.11.6-MariaDB - mariadb.org binary distribution
 -- Server OS:                    Win64
--- HeidiSQL Version:             12.21.0.7344
 -- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -14,12 +13,9 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
--- Dumping database structure for ikm
-CREATE DATABASE IF NOT EXISTS `ikm` /*!40100 DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci */;
+CREATE DATABASE IF NOT EXISTS `ikm` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `ikm`;
 
--- Dumping structure for table ikm.data
 CREATE TABLE IF NOT EXISTS `data` (
   `id_data` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `id_user` int(10) NOT NULL,
@@ -36,19 +32,14 @@ CREATE TABLE IF NOT EXISTS `data` (
   `q9` varchar(20) NOT NULL,
   `suggestion` text NOT NULL,
   PRIMARY KEY (`id_data`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table ikm.data: ~0 rows (approximately)
-DELETE FROM `data`;
-
--- Dumping structure for table ikm.question
 CREATE TABLE IF NOT EXISTS `question` (
-  `id_text` varchar(10) NOT NULL,
+  `id_text` varchar(20) NOT NULL,
   `text` text NOT NULL,
   PRIMARY KEY (`id_text`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table ikm.question: ~9 rows (approximately)
 DELETE FROM `question`;
 INSERT INTO `question` (`id_text`, `text`) VALUES
 	('1+a', 'Kesesuaian persyaratan pelayanan dengan jenis pelayananya ?'),
@@ -61,25 +52,24 @@ INSERT INTO `question` (`id_text`, `text`) VALUES
 	('1+h', 'kesesuaian antara pelayanan yang didapatkan dengan malumat pelayanan (standart pelayanan) yang ditetapkan ?'),
 	('1+i', 'Penanganan terhadap pengaduan, saran dan masukan ?');
 
--- Dumping structure for table ikm.user
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(10) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `username` varchar(30) NOT NULL,
-  `password` varchar(30) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL DEFAULT '',
   `address` text NOT NULL,
-  `email` varchar(30) NOT NULL,
+  `email` varchar(100) NOT NULL,
   `mobile` varchar(30) NOT NULL,
+  `photo` varchar(255) NOT NULL DEFAULT '',
   `role` enum('admin','operator') NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table ikm.user: ~2 rows (approximately)
 DELETE FROM `user`;
-INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `role`) VALUES
-	(0, 'Administrators', 'admin', 'admin', 'Indonesia', 'administrator@mail.co.id', '085691996250', 'admin'),
-	(1, 'operator', 'op', '123', '', '', '', 'operator');
+INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `photo`, `role`) VALUES
+	(0, 'Administrators', 'admin', 'admin', 'Indonesia', 'administrator@mail.co.id', '085691996250', '', 'admin'),
+	(1, 'Operator Pelayanan 1', 'op1', '123', 'Perum Gunungsari Indah 36, Surabaya', 'operator1@mail.co.id', '081234567890', '', 'operator');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

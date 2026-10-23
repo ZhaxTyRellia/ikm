@@ -3,8 +3,23 @@
 </section>
 
 <div class="row justify-content-center mb-5 pb-5">
-  <div class="col-md-7 text-center heading-section ftco-animate">
-    <h2 class="tittle" align="center"><strong>Data Survey Operator <?= htmlspecialchars($counter, ENT_QUOTES, 'UTF-8') ?></strong></h2><br />
+  <div class="col-md-9 text-center heading-section ftco-animate">
+    <?php
+    $opName = $operator['name'] ?? "Operator {$counter}";
+    $photoUrl = !empty($operator['photo'])
+        ? $basePath . '/' . ltrim((string) $operator['photo'], '/')
+        : $basePath . '/images/logo.png';
+    ?>
+    <img src="<?= htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?>" class="operator-avatar mb-2">
+    <h2 class="tittle" align="center"><strong>Data Survey: <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></strong></h2>
+    <?php if (!empty($operator)): ?>
+      <p class="text-muted mb-3">
+        Username: <strong>@<?= htmlspecialchars((string) $operator['username'], ENT_QUOTES, 'UTF-8') ?></strong> |
+        Alamat/Unit: <strong><?= htmlspecialchars((string) ($operator['address'] ?: '-'), ENT_QUOTES, 'UTF-8') ?></strong> |
+        Email: <strong><?= htmlspecialchars((string) ($operator['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?></strong> |
+        No. HP: <strong><?= htmlspecialchars((string) ($operator['mobile'] ?: '-'), ENT_QUOTES, 'UTF-8') ?></strong>
+      </p>
+    <?php endif; ?>
 
     <form action="<?= $basePath ?>/admin/data_table?counter=<?= urlencode($counter) ?>" method="post">
       <p align="center">
@@ -31,7 +46,7 @@
     </form>
     <br />
 
-    <table border="1" style="background-color:yellow;">
+    <table border="1" style="background-color:yellow;" align="center">
       <thead>
         <tr>
           <td width="700" align="center"><b><strong>Pertanyaan</strong></b></td>
@@ -56,7 +71,7 @@
     <br />
 
     <h2 class="tittle" align="center"><strong>Kritik &amp; Saran</strong></h2><br />
-    <table border="1" style="background-color:yellow;">
+    <table border="1" style="background-color:yellow;" align="center">
       <thead>
         <tr>
           <td width="30" align="center"><b><strong>no</strong></b></td>

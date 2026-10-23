@@ -10,15 +10,23 @@ use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
 return static function (App $app): void {
-    // Auth Routes
-    $app->get('/', [AuthController::class, 'showLogin'])->setName('login');
+    // Public Home & Admin Login Modal Routes
+    $app->get('/', [AuthController::class, 'home'])->setName('home');
+    $app->get('/home', [AuthController::class, 'home']);
+    $app->get('/index', [AuthController::class, 'home']);
+    $app->get('/login', [AuthController::class, 'home'])->setName('login');
     $app->post('/', [AuthController::class, 'login']);
-    $app->get('/index', [AuthController::class, 'showLogin']);
-    $app->get('/login', [AuthController::class, 'showLogin']);
     $app->post('/login', [AuthController::class, 'login']);
     $app->map(['GET', 'POST'], '/logout', [AuthController::class, 'logout'])->setName('logout');
 
-    // Admin Routes
+    // Public Citizen Survey (Suara Rakyat per Operator Target)
+    $app->get('/survey', [OperatorController::class, 'survey'])->setName('survey');
+    $app->post('/survey', [OperatorController::class, 'submitSurvey']);
+    $app->get('/operator[/]', [OperatorController::class, 'survey']);
+    $app->get('/operator/survey', [OperatorController::class, 'survey']);
+    $app->post('/operator/survey', [OperatorController::class, 'submitSurvey']);
+
+    // Admin Routes (Protected by Admin Session)
     $app->group('/admin', function (RouteCollectorProxy $group): void {
         $group->get('[/]', [AdminController::class, 'home']);
         $group->get('/home', [AdminController::class, 'home'])->setName('admin.home');
@@ -41,11 +49,4 @@ return static function (App $app): void {
         $group->post('/account_edit', [AdminController::class, 'accountUpdate']);
         $group->map(['GET', 'POST'], '/account_delete', [AdminController::class, 'accountDelete']);
     })->add(new AuthMiddleware('admin'));
-
-    // Operator Routes
-    $app->group('/operator', function (RouteCollectorProxy $group): void {
-        $group->get('[/]', [OperatorController::class, 'survey']);
-        $group->get('/survey', [OperatorController::class, 'survey'])->setName('operator.survey');
-        $group->post('/survey', [OperatorController::class, 'submitSurvey']);
-    })->add(new AuthMiddleware('operator'));
 };

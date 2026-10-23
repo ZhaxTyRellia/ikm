@@ -15,37 +15,39 @@ class AuthController
         private readonly PhpRenderer $view,
         private readonly SurveyRepository $repo
     ) {
-        $this->view->setLayout('');
     }
 
-    public function showLogin(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function home(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        if (!empty($_SESSION['islogin'])) {
-            $role = $_SESSION['role'] ?? '';
-            if ($role === 'admin') {
-                return $this->redirect($response, '/admin/home');
-            }
-            if ($role === 'operator') {
-                return $this->redirect($response, '/operator/survey');
-            }
-        }
+        $this->view->setLayout('layouts/admin.php');
 
-        $this->view->setLayout('');
-        return $this->view->render($response, 'auth/login.php', ['error' => '']);
+        return $this->view->render($response, 'admin/home.php', [
+            'title'      => 'Satisfaction Survey System',
+            'activeMenu' => 'home',
+            'isHome'     => true,
+            'isAdmin'    => !empty($_SESSION['islogin']) && ($_SESSION['role'] ?? '') === 'admin',
+            'loginError' => '',
+            'operators'  => $this->repo->getOperatorsWithTotals(),
+        ]);
     }
 
     public function login(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $this->view->setLayout('');
         $body = (array) ($request->getParsedBody() ?? []);
         $user = $this->repo->findUserByCredentials(
             trim((string) ($body['username'] ?? '')),
             (string) ($body['password'] ?? '')
         );
 
-        if (!$user) {
-            return $this->view->render($response, 'auth/login.php', [
-                'error' => 'Username or Password wrong !!!',
+        if (!$user || ($user['role'] ?? '') !== 'admin') {
+            $this->view->setLayout('layouts/admin.php');
+            return $this->view->render($response, 'admin/home.php', [
+                'title'      => 'Satisfaction Survey System',
+                'activeMenu' => 'home',
+                'isHome'     => true,
+                'isAdmin'    => false,
+                'loginError' => !$user ? 'Username atau Password salah!' : 'Login hanya diperuntukkan bagi Admin!',
+                'operators'  => $this->repo->getOperatorsWithTotals(),
             ]);
         }
 
@@ -54,13 +56,7 @@ class AuthController
         $_SESSION['id']       = (int) $user['id'];
         $_SESSION['role']     = $user['role'];
 
-        return match ($user['role']) {
-            'admin'    => $this->redirect($response, '/admin/home'),
-            'operator' => $this->redirect($response, '/operator/survey'),
-            default    => $this->view->render($response, 'auth/login.php', [
-                'error' => 'Account is not Approve !!!',
-            ]),
-        };
+        return $this->redirect($response, '/admin/home');
     }
 
     public function logout(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface

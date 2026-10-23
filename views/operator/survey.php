@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Survey Kepuasan</title>
+  <title>Survey Kepuasan - <?= htmlspecialchars((string) ($operator['name'] ?? "Operator {$counter}"), ENT_QUOTES, 'UTF-8') ?></title>
   <link href="<?= $basePath ?>/css/style.css" type="text/css" rel="stylesheet" />
   <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
@@ -13,21 +13,41 @@
 </head>
 
 <body>
-  <div id="header">
-    <button onclick="openFullscreen();" style="background-color:transparent;border-style:none">
-      <img class="images" src="<?= $basePath ?>/images/logo.png" alt="Logo">
-    </button>
-    <div class="tittle-header">
-      <a class="title">CV. BINTANG SEMBILAN</a>
-      <a class="title">Perum Gunungsari Indah 36</a>
-      <a class="title">SURABAYA</a>
+  <?php
+  $opName = $operator['name'] ?? "Operator {$counter}";
+  $photoUrl = !empty($operator['photo'])
+      ? $basePath . '/' . ltrim((string) $operator['photo'], '/')
+      : $basePath . '/images/logo.png';
+  ?>
+  <div id="header" style="justify-content:space-between;padding:8px 20px;">
+    <div style="display:flex;align-items:center;">
+      <button onclick="openFullscreen();" style="background-color:transparent;border-style:none">
+        <img class="images" src="<?= htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8') ?>"
+             alt="<?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?>"
+             style="width:85px;height:85px;border-radius:50%;object-fit:cover;border:3px solid #2c01a3;padding:0;">
+      </button>
+      <div class="tittle-header">
+        <a class="title"><?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></a>
+        <a class="title" style="font-size:16px;font-weight:500;">
+          <?= htmlspecialchars((string) ($operator['address'] ?? 'CV. BINTANG SEMBILAN - SURABAYA'), ENT_QUOTES, 'UTF-8') ?>
+        </a>
+        <?php if (!empty($operator['mobile']) || !empty($operator['email'])): ?>
+          <a class="title" style="font-size:14px;font-weight:400;">
+            <?= htmlspecialchars(trim(($operator['email'] ?? '') . ' ' . ($operator['mobile'] ? '| ' . $operator['mobile'] : '')), ENT_QUOTES, 'UTF-8') ?>
+          </a>
+        <?php endif; ?>
+      </div>
     </div>
+    <a href="<?= $basePath ?>/" style="background:#2c01a3;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-weight:600;font-family:sans-serif;">
+      &larr; Kembali ke Home
+    </a>
   </div>
 
   <div id="content">
     <section>
-      <div class="title-fieldset">SURVEY KEPUASAN MASYARAKAT</div>
-      <form action="<?= $basePath ?>/operator/survey?id=<?= urlencode($counter) ?>" method="post">
+      <div class="title-fieldset">SURVEY KEPUASAN MASYARAKAT (SUARA RAKYAT)</div>
+      <form action="<?= $basePath ?>/survey?id=<?= urlencode($counter) ?>" method="post">
+        <input type="hidden" name="counter" value="<?= htmlspecialchars($counter, ENT_QUOTES, 'UTF-8') ?>">
         <div class="container">
           <?php foreach ($questions as $num => $text): ?>
             <div class="form-step <?= (int) $num === 1 ? 'form-step-active' : '' ?>">
@@ -46,7 +66,7 @@
           <?php endforeach; ?>
 
           <div class="form-step">
-            <h2>Kritik dan saran</h2>
+            <h2>Kritik dan saran untuk <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></h2>
             <input type="text" name="suggestion" class="form-control" placeholder="Tulis pesan anda disini"
               aria-label="Kritik dan saran">
             <br><br>

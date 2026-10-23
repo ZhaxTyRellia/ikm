@@ -3,11 +3,21 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Data Survey Operator <?= htmlspecialchars($counter, ENT_QUOTES, 'UTF-8') ?></title>
+  <?php $opName = $operator['name'] ?? "Operator {$counter}"; ?>
+  <title>Data Survey <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></title>
 </head>
 
 <body>
-  <h2 align="center"><strong>Data Survey Operator <?= htmlspecialchars($counter, ENT_QUOTES, 'UTF-8') ?></strong></h2><br />
+  <h2 align="center"><strong>Data Survey: <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></strong></h2>
+  <?php if (!empty($operator)): ?>
+    <p align="center">
+      Username: @<?= htmlspecialchars((string) $operator['username'], ENT_QUOTES, 'UTF-8') ?> |
+      Alamat/Unit: <?= htmlspecialchars((string) ($operator['address'] ?: '-'), ENT_QUOTES, 'UTF-8') ?> |
+      Email: <?= htmlspecialchars((string) ($operator['email'] ?: '-'), ENT_QUOTES, 'UTF-8') ?> |
+      No. HP: <?= htmlspecialchars((string) ($operator['mobile'] ?: '-'), ENT_QUOTES, 'UTF-8') ?>
+    </p>
+  <?php endif; ?>
+  <br />
 
   <table border="1">
     <tr>

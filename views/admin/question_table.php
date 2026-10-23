@@ -5,7 +5,14 @@
 <div class="container-fluid">
   <div class="row justify-content-center mb-5 pb-5">
     <div class="col-md-7 text-center heading-section ftco-animate">
-      <h2 class="tittle">Edit Question Survey Operator <?= htmlspecialchars($counter, ENT_QUOTES, 'UTF-8') ?></h2><br />
+      <?php
+      $opName = $operator['name'] ?? "Operator {$counter}";
+      $photoUrl = !empty($operator['photo'])
+          ? $basePath . '/' . ltrim((string) $operator['photo'], '/')
+          : $basePath . '/images/logo.png';
+      ?>
+      <img src="<?= htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?>" class="operator-avatar mb-2">
+      <h2 class="tittle">Edit Pertanyaan Survey: <?= htmlspecialchars($opName, ENT_QUOTES, 'UTF-8') ?></h2><br />
       <form action="<?= $basePath ?>/admin/question_edit?counter=<?= urlencode($counter) ?>" method="post">
         <input type="hidden" name="counter" value="<?= htmlspecialchars($counter, ENT_QUOTES, 'UTF-8') ?>" />
         <table align="center">

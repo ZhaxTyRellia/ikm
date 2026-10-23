@@ -10,6 +10,18 @@ class SurveyRepository
 {
     public const QUESTION_CODES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
 
+    public const DEFAULT_QUESTIONS = [
+        'a' => 'Kesesuaian persyaratan pelayanan dengan jenis pelayananya ?',
+        'b' => 'Kemudahan prosedur Pelayanan yang Diberikan penyelenggara pelayanan ?',
+        'c' => 'Kecepatan Pelayanan yang Diberikan penyelenggara pelayanan ?',
+        'd' => 'Kesesuaian antara biaya yang dibayarkan dengan biaya yang telah ditetapkan ?',
+        'e' => 'Kesesuaian antara hasil pelayanan yang diberikan dengan ketentuan yang telah ditetapkan / permintaan awal pelanggan ?',
+        'f' => 'Kemampuan petugas dalam memberikan pelayanan ?',
+        'g' => 'Sikap (kesopanan dan keramahan) petugas dalam memberikan pelayanan ?',
+        'h' => 'kesesuaian antara pelayanan yang didapatkan dengan malumat pelayanan (standart pelayanan) yang ditetapkan ?',
+        'i' => 'Penanganan terhadap pengaduan, saran dan masukan ?',
+    ];
+
     public const RATING_OPTIONS = [
         'tidak puas'  => 'sgt-tdk-puas.gif',
         'kurang puas' => 'tidak-puas.gif',
@@ -40,15 +52,32 @@ class SurveyRepository
         return $stmt->fetch() ?: null;
     }
 
+    /**
+     * Returns all operator accounts along with their total survey votes (suara rakyat).
+     */
+    public function getOperatorsWithTotals(): array
+    {
+        $sql = "SELECT u.*, COUNT(d.`id_data`) AS `total_suara`
+                FROM `user` u
+                LEFT JOIN `data` d ON d.`counter` = CAST(u.`id` AS CHAR)
+                WHERE u.`role` = 'operator'
+                GROUP BY u.`id`
+                ORDER BY u.`id` ASC";
+
+        return $this->db->query($sql)->fetchAll();
+    }
+
     public function createUser(array $data): bool
     {
         $nextId = (int) $this->db->query('SELECT COALESCE(MAX(`id`), 0) + 1 FROM `user`')->fetchColumn();
+        $role = ($data['role'] ?? 'operator') === 'admin' ? 'admin' : 'operator';
+
         $stmt = $this->db->prepare(
-            'INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `role`)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `photo`, `role`)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
-        return $stmt->execute([
+        $ok = $stmt->execute([
             $nextId,
             $data['name'] ?? '',
             $data['username'] ?? '',
@@ -56,15 +85,25 @@ class SurveyRepository
             $data['address'] ?? '',
             $data['email'] ?? '',
             $data['mobile'] ?? '',
-            $data['role'] ?? 'operator',
+            $data['photo'] ?? '',
+            $role,
         ]);
+
+        if ($ok && $role === 'operator') {
+            $this->seedDefaultQuestions((string) $nextId);
+        }
+
+        return $ok;
     }
 
     public function updateUser(int $id, array $data): bool
     {
+        $existing = $this->getUserById($id);
+        $photo = !empty($data['photo']) ? $data['photo'] : ($existing['photo'] ?? '');
+
         $stmt = $this->db->prepare(
             'UPDATE `user`
-             SET `name` = ?, `username` = ?, `password` = ?, `address` = ?, `email` = ?, `mobile` = ?, `role` = ?
+             SET `name` = ?, `username` = ?, `password` = ?, `address` = ?, `email` = ?, `mobile` = ?, `photo` = ?, `role` = ?
              WHERE `id` = ?'
         );
 
@@ -75,30 +114,26 @@ class SurveyRepository
             $data['address'] ?? '',
             $data['email'] ?? '',
             $data['mobile'] ?? '',
-            $data['role'] ?? 'operator',
+            $photo,
+            ($data['role'] ?? 'operator') === 'admin' ? 'admin' : 'operator',
             $id,
         ]);
     }
 
     public function deleteUser(int $id): bool
     {
+        $this->db->prepare('DELETE FROM `question` WHERE `id_text` LIKE ?')->execute(["{$id}+%"]);
         return $this->db->prepare('DELETE FROM `user` WHERE `id` = ?')->execute([$id]);
     }
 
-    public function getCounterTotals(int $maxCounter = 12): array
+    public function seedDefaultQuestions(string $counter): void
     {
-        $totals = array_fill(1, $maxCounter, 0);
-        $rows = $this->db->query('SELECT `counter`, COUNT(`id_data`) FROM `data` GROUP BY `counter`')
-            ->fetchAll(PDO::FETCH_KEY_PAIR);
-
-        foreach ($rows as $counter => $count) {
-            $num = (int) $counter;
-            if (isset($totals[$num])) {
-                $totals[$num] = (int) $count;
-            }
+        $stmt = $this->db->prepare(
+            'INSERT IGNORE INTO `question` (`id_text`, `text`) VALUES (?, ?)'
+        );
+        foreach (self::DEFAULT_QUESTIONS as $code => $text) {
+            $stmt->execute(["{$counter}+{$code}", $text]);
         }
-
-        return $totals;
     }
 
     public function getQuestionsByCounter(string $counter): array
@@ -109,7 +144,7 @@ class SurveyRepository
 
         $questions = [];
         foreach (self::QUESTION_CODES as $idx => $code) {
-            $questions[$idx + 1] = $byId["{$counter}+{$code}"] ?? '';
+            $questions[$idx + 1] = $byId["{$counter}+{$code}"] ?? self::DEFAULT_QUESTIONS[$code];
         }
 
         return $questions;

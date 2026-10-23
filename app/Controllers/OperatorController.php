@@ -15,16 +15,17 @@ class OperatorController
         private readonly PhpRenderer $view,
         private readonly SurveyRepository $repo
     ) {
-        $this->view->setLayout('');
     }
 
     public function survey(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $this->view->setLayout('');
-        $counter = '1';
+        $counter = (string) ($request->getQueryParams()['id'] ?? $request->getQueryParams()['counter'] ?? '1');
+        $operator = $this->repo->getUserById((int) $counter);
 
         return $this->view->render($response, 'operator/survey.php', [
             'counter'       => $counter,
+            'operator'      => $operator,
             'questions'     => $this->repo->getQuestionsByCounter($counter),
             'ratingOptions' => SurveyRepository::RATING_OPTIONS,
         ]);
@@ -35,15 +36,11 @@ class OperatorController
         $body = (array) ($request->getParsedBody() ?? []);
         $basePath = (string) ($this->view->getAttribute('basePath') ?? '');
 
-        if (($body['q1'] ?? '') === 'logout') {
-            return $response->withHeader('Location', ($basePath . '/logout') ?: '/logout')->withStatus(302);
-        }
-
         $counter = (string) ($request->getQueryParams()['id'] ?? $body['counter'] ?? '1');
-        $this->repo->insertSurveyResponse((int) ($_SESSION['id'] ?? 0), $counter, $body);
+        $this->repo->insertSurveyResponse((int) $counter, $counter, $body);
 
         $msg = 'Terima Kasih anda telah berpartisipasi untuk memberikan saran dan masukan yang terbaik bagi Kami.';
-        $url = ($basePath . '/operator/survey') ?: '/operator/survey';
+        $url = ($basePath . '/') ?: '/';
         $response->getBody()->write(sprintf(
             '<script>alert(%s);window.location.href=%s;</script>',
             json_encode($msg),
