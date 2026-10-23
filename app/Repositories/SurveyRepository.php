@@ -41,6 +41,69 @@ class SurveyRepository
     {
     }
 
+    /**
+     * Returns site-wide settings (company logo, marquee text, footer text).
+     *
+     * @return array{company_logo: string, marquee_text: string, footer_text: string}
+     */
+    public function getSettings(): array
+    {
+        $defaults = [
+            'company_logo' => 'images/logo.png',
+            'marquee_text' => 'Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami.',
+            'footer_text'  => 'Portal Survei IKM & Suara Rakyat',
+        ];
+
+        try {
+            $rows = $this->db->query('SELECT `setting_key`, `setting_value` FROM `settings`')->fetchAll(PDO::FETCH_KEY_PAIR);
+        } catch (\Throwable) {
+            $this->ensureSettingsTable($defaults);
+            $rows = [];
+        }
+
+        return [
+            'company_logo' => !empty($rows['company_logo']) ? (string) $rows['company_logo'] : $defaults['company_logo'],
+            'marquee_text' => isset($rows['marquee_text']) && trim((string) $rows['marquee_text']) !== ''
+                ? (string) $rows['marquee_text']
+                : $defaults['marquee_text'],
+            'footer_text'  => isset($rows['footer_text']) && trim((string) $rows['footer_text']) !== ''
+                ? (string) $rows['footer_text']
+                : $defaults['footer_text'],
+        ];
+    }
+
+    public function updateSettings(array $data): void
+    {
+        $current = $this->getSettings();
+        $this->ensureSettingsTable($current);
+
+        $stmt = $this->db->prepare(
+            'INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE `setting_value` = VALUES(`setting_value`)'
+        );
+
+        foreach (['company_logo', 'marquee_text', 'footer_text'] as $key) {
+            if (isset($data[$key]) && trim((string) $data[$key]) !== '') {
+                $stmt->execute([$key, trim((string) $data[$key])]);
+            }
+        }
+    }
+
+    private function ensureSettingsTable(array $defaults): void
+    {
+        $this->db->exec(
+            'CREATE TABLE IF NOT EXISTS `settings` (
+                `setting_key` varchar(50) NOT NULL,
+                `setting_value` text NOT NULL,
+                PRIMARY KEY (`setting_key`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci'
+        );
+        $stmt = $this->db->prepare('INSERT IGNORE INTO `settings` (`setting_key`, `setting_value`) VALUES (?, ?)');
+        foreach ($defaults as $k => $v) {
+            $stmt->execute([$k, $v]);
+        }
+    }
+
     public function findUserByCredentials(string $username, string $password): ?array
     {
         if ($username === '' || $password === '') {

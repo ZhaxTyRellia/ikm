@@ -23,6 +23,7 @@ class AuthController
             'isAdmin'    => !empty($_SESSION['islogin']) && ($_SESSION['role'] ?? '') === 'admin',
             'loginError' => '',
             'operators'  => $this->repo->getOperatorsWithTotals(),
+            'settings'   => $this->repo->getSettings(),
         ]);
     }
 
@@ -39,6 +40,7 @@ class AuthController
                 'isAdmin'    => false,
                 'loginError' => !$user ? 'Username atau Password salah!' : 'Login hanya untuk Admin!',
                 'operators'  => $this->repo->getOperatorsWithTotals(),
+                'settings'   => $this->repo->getSettings(),
             ]);
         }
 

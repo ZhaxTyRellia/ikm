@@ -186,6 +186,54 @@ class AdminController
         return $this->redirect($response, '/admin/home');
     }
 
+    public function settingsForm(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        return $this->render($response, [
+            'title'      => 'Pengaturan Instansi (Logo & Footer Marquee)',
+            'activeMenu' => 'settings',
+            'section'    => 'settings',
+        ]);
+    }
+
+    public function settingsUpdate(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        $data = (array) ($request->getParsedBody() ?? []);
+        $uploadedLogo = $this->handleLogoUpload($request);
+        if ($uploadedLogo !== null) {
+            $data['company_logo'] = $uploadedLogo;
+        }
+
+        $this->repo->updateSettings($data);
+
+        return $this->alertRedirect($response, 'Pengaturan logo dan teks footer marquee berhasil disimpan!', '/admin/settings');
+    }
+
+    private function handleLogoUpload(ServerRequestInterface $request): ?string
+    {
+        $files = $request->getUploadedFiles();
+        /** @var UploadedFileInterface|null $logo */
+        $logo = $files['company_logo'] ?? null;
+
+        if (!$logo || $logo->getError() !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        $ext = strtolower(pathinfo($logo->getClientFilename() ?? '', PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'], true)) {
+            $ext = 'png';
+        }
+
+        $uploadDir = __DIR__ . '/../../public/images';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $filename = 'logo_company_' . uniqid('', true) . '.' . $ext;
+        $logo->moveTo($uploadDir . DIRECTORY_SEPARATOR . $filename);
+
+        return 'images/' . $filename;
+    }
+
     private function handlePhotoUpload(ServerRequestInterface $request): ?string
     {
         $files = $request->getUploadedFiles();
@@ -214,7 +262,8 @@ class AdminController
 
     private function render(ResponseInterface $response, array $data = []): ResponseInterface
     {
-        $data['isAdmin'] = true;
+        $data['isAdmin']  = true;
+        $data['settings'] = $this->repo->getSettings();
         return $this->view->render($response, 'admin.php', $data);
     }
 

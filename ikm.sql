@@ -16,6 +16,18 @@
 CREATE DATABASE IF NOT EXISTS `ikm` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `ikm`;
 
+DROP TABLE IF EXISTS `settings`;
+CREATE TABLE `settings` (
+  `setting_key` varchar(50) NOT NULL,
+  `setting_value` text NOT NULL,
+  PRIMARY KEY (`setting_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
+	('company_logo', 'images/logo.png'),
+	('marquee_text', 'Terima kasih atas partisipasi, penilaian, dan masukan Anda bagi peningkatan pelayanan kami.'),
+	('footer_text', 'Portal Survei IKM & Suara Rakyat');
+
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(10) NOT NULL,

@@ -27,6 +27,7 @@ class OperatorController
             'operator'      => $operator,
             'questions'     => $this->repo->getQuestionsByCounter($counter),
             'ratingOptions' => SurveyRepository::RATING_OPTIONS,
+            'settings'      => $this->repo->getSettings(),
         ]);
     }
 

@@ -48,5 +48,8 @@ return static function (App $app): void {
         $group->get('/account_edit', [AdminController::class, 'accountEditForm']);
         $group->post('/account_edit', [AdminController::class, 'accountUpdate']);
         $group->map(['GET', 'POST'], '/account_delete', [AdminController::class, 'accountDelete']);
+
+        $group->get('/settings', [AdminController::class, 'settingsForm'])->setName('admin.settings');
+        $group->post('/settings', [AdminController::class, 'settingsUpdate']);
     })->add(new AuthMiddleware('admin'));
 };
