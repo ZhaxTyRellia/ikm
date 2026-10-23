@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <title>Survey Kepuasan</title>
   <link href="<?= $basePath ?>/css/style.css" type="text/css" rel="stylesheet" />
-  <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
+  <link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.jpg" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
 
@@ -70,12 +70,13 @@
 
   <script>
     var audio = document.getElementById('audio');
+
     function play() {
       if (audio) {
         audio.play();
       }
     }
-    setTimeout(function () {
+    setTimeout(function() {
       if (audio) {
         audio.play();
       }

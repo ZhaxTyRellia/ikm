@@ -5,7 +5,7 @@
 	<title>Login</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.png" />
+	<link rel="icon" type="image/gif" href="<?= $basePath ?>/images/favicon.jpg" />
 	<link rel="stylesheet" type="text/css" href="<?= $basePath ?>/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="<?= $basePath ?>/css/login.css">
 </head>
@@ -43,7 +43,7 @@
 				</form>
 				<br />
 				<div class="copyright">
-					<center>Developer <img class="developer" src="<?= $basePath ?>/images/favicon.png"> &copy; Shakti 2023.
+					<center>Developer <img class="developer" src="<?= $basePath ?>/images/favicon.jpg"> &copy; Shakti 2023.
 					</center>
 				</div>
 			</div>

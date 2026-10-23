@@ -7,39 +7,47 @@ namespace App\Controllers;
 use App\Repositories\SurveyRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Views\PhpRenderer;
 
-class OperatorController extends Controller
+class OperatorController
 {
+    public function __construct(
+        private readonly PhpRenderer $view,
+        private readonly SurveyRepository $repo
+    ) {
+    }
+
     public function survey(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $counter = '1';
-        $questions = $this->repo->getQuestionsByCounter($counter);
 
-        return $this->render($response, 'operator/survey.php', [
+        return $this->view->render($response, 'operator/survey.php', [
             'counter'       => $counter,
-            'questions'     => $questions,
+            'questions'     => $this->repo->getQuestionsByCounter($counter),
             'ratingOptions' => SurveyRepository::RATING_OPTIONS,
         ]);
     }
 
     public function submitSurvey(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        $query = $request->getQueryParams();
         $body = (array) ($request->getParsedBody() ?? []);
-
-        $counter = (string) ($query['id'] ?? $body['counter'] ?? '1');
-        $userId = (int) ($_SESSION['id'] ?? 0);
+        $basePath = (string) ($this->view->getAttribute('basePath') ?? '');
 
         if (($body['q1'] ?? '') === 'logout') {
-            return $this->redirect($response, '/logout');
+            return $response->withHeader('Location', ($basePath . '/logout') ?: '/logout')->withStatus(302);
         }
 
-        $this->repo->insertSurveyResponse($userId, $counter, $body);
+        $counter = (string) ($request->getQueryParams()['id'] ?? $body['counter'] ?? '1');
+        $this->repo->insertSurveyResponse((int) ($_SESSION['id'] ?? 0), $counter, $body);
 
-        return $this->alertAndRedirect(
-            $response,
-            'Terima Kasih anda telah berpartisipasi untuk memberikan saran dan masukan yang terbaik bagi Kami.',
-            '/operator/survey'
-        );
+        $msg = 'Terima Kasih anda telah berpartisipasi untuk memberikan saran dan masukan yang terbaik bagi Kami.';
+        $url = ($basePath . '/operator/survey') ?: '/operator/survey';
+        $response->getBody()->write(sprintf(
+            '<script>alert(%s);window.location.href=%s;</script>',
+            json_encode($msg),
+            json_encode($url)
+        ));
+
+        return $response->withHeader('Content-Type', 'text/html; charset=UTF-8');
     }
 }

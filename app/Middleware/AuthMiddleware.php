@@ -9,29 +9,25 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Psr7\Response;
+use Slim\Routing\RouteContext;
 
 class AuthMiddleware implements MiddlewareInterface
 {
-    public function __construct(
-        private readonly string $requiredRole,
-        private readonly string $basePath = ''
-    ) {
+    public function __construct(private readonly string $requiredRole)
+    {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $isLoggedIn = !empty($_SESSION['islogin']);
         $role = $_SESSION['role'] ?? '';
 
         if (!$isLoggedIn || $role !== $this->requiredRole) {
-            $response = new Response();
-            $target = $this->basePath . ($isLoggedIn ? '/logout' : '/');
-            return $response
-                ->withHeader('Location', $target !== '' ? $target : '/')
+            $basePath = RouteContext::fromRequest($request)->getBasePath();
+            $target = $basePath . ($isLoggedIn ? '/logout' : '/');
+
+            return (new Response())
+                ->withHeader('Location', $target ?: '/')
                 ->withStatus(302);
         }
 

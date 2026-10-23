@@ -23,51 +23,40 @@ class SurveyRepository
 
     public function findUserByCredentials(string $username, string $password): ?array
     {
-        $stmt = $this->db->prepare(
-            'SELECT * FROM `user` WHERE `username` = :username AND `password` = :password LIMIT 1'
-        );
-        $stmt->execute([
-            'username' => $username,
-            'password' => $password,
-        ]);
-
-        $user = $stmt->fetch();
-        return $user !== false ? $user : null;
+        $stmt = $this->db->prepare('SELECT * FROM `user` WHERE `username` = ? AND `password` = ? LIMIT 1');
+        $stmt->execute([$username, $password]);
+        return $stmt->fetch() ?: null;
     }
 
     public function getAllUsers(): array
     {
-        $stmt = $this->db->query('SELECT * FROM `user` ORDER BY `id` ASC');
-        return $stmt->fetchAll();
+        return $this->db->query('SELECT * FROM `user` ORDER BY `id` ASC')->fetchAll();
     }
 
     public function getUserById(int $id): ?array
     {
-        $stmt = $this->db->prepare('SELECT * FROM `user` WHERE `id` = :id LIMIT 1');
-        $stmt->execute(['id' => $id]);
-        $user = $stmt->fetch();
-        return $user !== false ? $user : null;
+        $stmt = $this->db->prepare('SELECT * FROM `user` WHERE `id` = ? LIMIT 1');
+        $stmt->execute([$id]);
+        return $stmt->fetch() ?: null;
     }
 
     public function createUser(array $data): bool
     {
-        $nextIdStmt = $this->db->query('SELECT COALESCE(MAX(`id`), 0) + 1 FROM `user`');
-        $nextId = (int) $nextIdStmt->fetchColumn();
-
+        $nextId = (int) $this->db->query('SELECT COALESCE(MAX(`id`), 0) + 1 FROM `user`')->fetchColumn();
         $stmt = $this->db->prepare(
             'INSERT INTO `user` (`id`, `name`, `username`, `password`, `address`, `email`, `mobile`, `role`)
-             VALUES (:id, :name, :username, :password, :address, :email, :mobile, :role)'
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         return $stmt->execute([
-            'id'       => $nextId,
-            'name'     => $data['name'] ?? '',
-            'username' => $data['username'] ?? '',
-            'password' => $data['password'] ?? '',
-            'address'  => $data['address'] ?? '',
-            'email'    => $data['email'] ?? '',
-            'mobile'   => $data['mobile'] ?? '',
-            'role'     => $data['role'] ?? 'operator',
+            $nextId,
+            $data['name'] ?? '',
+            $data['username'] ?? '',
+            $data['password'] ?? '',
+            $data['address'] ?? '',
+            $data['email'] ?? '',
+            $data['mobile'] ?? '',
+            $data['role'] ?? 'operator',
         ]);
     }
 
@@ -75,211 +64,143 @@ class SurveyRepository
     {
         $stmt = $this->db->prepare(
             'UPDATE `user`
-             SET `name` = :name,
-                 `username` = :username,
-                 `password` = :password,
-                 `address` = :address,
-                 `email` = :email,
-                 `mobile` = :mobile,
-                 `role` = :role
-             WHERE `id` = :id'
+             SET `name` = ?, `username` = ?, `password` = ?, `address` = ?, `email` = ?, `mobile` = ?, `role` = ?
+             WHERE `id` = ?'
         );
 
         return $stmt->execute([
-            'id'       => $id,
-            'name'     => $data['name'] ?? '',
-            'username' => $data['username'] ?? '',
-            'password' => $data['password'] ?? '',
-            'address'  => $data['address'] ?? '',
-            'email'    => $data['email'] ?? '',
-            'mobile'   => $data['mobile'] ?? '',
-            'role'     => $data['role'] ?? 'operator',
+            $data['name'] ?? '',
+            $data['username'] ?? '',
+            $data['password'] ?? '',
+            $data['address'] ?? '',
+            $data['email'] ?? '',
+            $data['mobile'] ?? '',
+            $data['role'] ?? 'operator',
+            $id,
         ]);
     }
 
     public function deleteUser(int $id): bool
     {
-        $stmt = $this->db->prepare('DELETE FROM `user` WHERE `id` = :id');
-        return $stmt->execute(['id' => $id]);
+        return $this->db->prepare('DELETE FROM `user` WHERE `id` = ?')->execute([$id]);
     }
 
-    /**
-     * Returns survey response counts indexed by counter number (1..$maxCounter).
-     *
-     * @return array<int, int>
-     */
     public function getCounterTotals(int $maxCounter = 12): array
     {
         $totals = array_fill(1, $maxCounter, 0);
+        $rows = $this->db->query('SELECT `counter`, COUNT(`id_data`) FROM `data` GROUP BY `counter`')
+            ->fetchAll(PDO::FETCH_KEY_PAIR);
 
-        $stmt = $this->db->query(
-            'SELECT `counter`, COUNT(`id_data`) AS `jumlah` FROM `data` GROUP BY `counter`'
-        );
-
-        foreach ($stmt->fetchAll() as $row) {
-            $counterNum = (int) $row['counter'];
-            if ($counterNum >= 1 && $counterNum <= $maxCounter) {
-                $totals[$counterNum] = (int) $row['jumlah'];
+        foreach ($rows as $counter => $count) {
+            $num = (int) $counter;
+            if (isset($totals[$num])) {
+                $totals[$num] = (int) $count;
             }
         }
 
         return $totals;
     }
 
-    /**
-     * Returns the 9 questions for a counter indexed 1..9.
-     *
-     * @return array<int, string>
-     */
     public function getQuestionsByCounter(string $counter): array
     {
-        $ids = array_map(
-            static fn(string $code): string => "{$counter}+{$code}",
-            self::QUESTION_CODES
-        );
-
-        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $stmt = $this->db->prepare(
-            "SELECT `id_text`, `text` FROM `question` WHERE `id_text` IN ({$placeholders})"
-        );
-        $stmt->execute($ids);
-
-        $byId = [];
-        foreach ($stmt->fetchAll() as $row) {
-            $byId[$row['id_text']] = $row['text'];
-        }
+        $stmt = $this->db->prepare('SELECT `id_text`, `text` FROM `question` WHERE `id_text` LIKE ?');
+        $stmt->execute(["{$counter}+%"]);
+        $byId = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
         $questions = [];
-        foreach (self::QUESTION_CODES as $index => $code) {
-            $num = $index + 1;
-            $key = "{$counter}+{$code}";
-            $questions[$num] = $byId[$key] ?? '';
+        foreach (self::QUESTION_CODES as $idx => $code) {
+            $questions[$idx + 1] = $byId["{$counter}+{$code}"] ?? '';
         }
 
         return $questions;
     }
 
-    /**
-     * Updates all 9 questions (q1..q9) for a given counter inside a transaction.
-     */
-    public function updateQuestionsByCounter(string $counter, array $input): bool
+    public function updateQuestionsByCounter(string $counter, array $input): void
     {
         $this->db->beginTransaction();
+        $stmt = $this->db->prepare(
+            'INSERT INTO `question` (`id_text`, `text`) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE `text` = VALUES(`text`)'
+        );
 
-        try {
-            $stmt = $this->db->prepare(
-                'INSERT INTO `question` (`id_text`, `text`)
-                 VALUES (:id_text, :text)
-                 ON DUPLICATE KEY UPDATE `text` = VALUES(`text`)'
-            );
-
-            foreach (self::QUESTION_CODES as $index => $code) {
-                $num = $index + 1;
-                $field = "q{$num}";
-                if (isset($input[$field])) {
-                    $stmt->execute([
-                        'id_text' => "{$counter}+{$code}",
-                        'text'    => (string) $input[$field],
-                    ]);
-                }
+        foreach (self::QUESTION_CODES as $idx => $code) {
+            $num = $idx + 1;
+            if (isset($input["q{$num}"])) {
+                $stmt->execute(["{$counter}+{$code}", (string) $input["q{$num}"]]);
             }
-
-            return $this->db->commit();
-        } catch (\Throwable $e) {
-            $this->db->rollBack();
-            throw $e;
         }
+
+        $this->db->commit();
     }
 
-    /**
-     * Returns summary counts per question (1..9) across all rating options.
-     *
-     * @return array<int, array{question: string, counts: array<string, int>}>
-     */
     public function getSurveySummary(string $counter, ?string $awal = null, ?string $akhir = null): array
     {
         $questions = $this->getQuestionsByCounter($counter);
-        $ratings = array_keys(self::RATING_OPTIONS);
+        [$where, $params] = $this->buildFilter($counter, $awal, $akhir);
 
-        $where = 'WHERE `counter` = :counter';
-        $params = ['counter' => $counter];
-
-        if ($awal !== null && $awal !== '' && $akhir !== null && $akhir !== '') {
-            $where .= ' AND DATE(`time`) BETWEEN :awal AND :akhir';
-            $params['awal'] = $awal;
-            $params['akhir'] = $akhir;
-        }
-
-        $stmt = $this->db->prepare(
-            "SELECT `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9` FROM `data` {$where}"
-        );
+        $stmt = $this->db->prepare("SELECT `q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9` FROM `data` {$where}");
         $stmt->execute($params);
         $rows = $stmt->fetchAll();
 
+        $defaultCounts = array_fill_keys(array_keys(self::RATING_OPTIONS), 0);
         $summary = [];
-        for ($i = 1; $i <= count(self::QUESTION_CODES); $i++) {
-            $counts = array_fill_keys($ratings, 0);
-            $col = "q{$i}";
 
+        foreach ($questions as $num => $text) {
+            $counts = $defaultCounts;
             foreach ($rows as $row) {
-                $val = strtolower(trim((string) ($row[$col] ?? '')));
+                $val = strtolower(trim((string) ($row["q{$num}"] ?? '')));
                 if (isset($counts[$val])) {
                     $counts[$val]++;
                 }
             }
-
-            $summary[$i] = [
-                'question' => $questions[$i] ?? '',
-                'counts'   => $counts,
-            ];
+            $summary[$num] = ['question' => $text, 'counts' => $counts];
         }
 
         return $summary;
     }
 
-    /**
-     * Returns all non-empty suggestions for a counter, optionally filtered by date range.
-     */
     public function getSuggestions(string $counter, ?string $awal = null, ?string $akhir = null): array
     {
-        $where = "WHERE `counter` = :counter AND TRIM(`suggestion`) != ''";
-        $params = ['counter' => $counter];
-
-        if ($awal !== null && $awal !== '' && $akhir !== null && $akhir !== '') {
-            $where .= ' AND DATE(`time`) BETWEEN :awal AND :akhir';
-            $params['awal'] = $awal;
-            $params['akhir'] = $akhir;
-        }
-
-        $stmt = $this->db->prepare(
-            "SELECT * FROM `data` {$where} ORDER BY `id_data` ASC"
-        );
+        [$where, $params] = $this->buildFilter($counter, $awal, $akhir, "AND TRIM(`suggestion`) != ''");
+        $stmt = $this->db->prepare("SELECT * FROM `data` {$where} ORDER BY `id_data` ASC");
         $stmt->execute($params);
-
         return $stmt->fetchAll();
     }
 
     public function insertSurveyResponse(int $userId, string $counter, array $answers): bool
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO `data`
-             (`id_user`, `counter`, `q1`, `q2`, `q3`, `q4`, `q5`, `q6`, `q7`, `q8`, `q9`, `suggestion`)
-             VALUES (:id_user, :counter, :q1, :q2, :q3, :q4, :q5, :q6, :q7, :q8, :q9, :suggestion)'
+            'INSERT INTO `data` (`id_user`,`counter`,`q1`,`q2`,`q3`,`q4`,`q5`,`q6`,`q7`,`q8`,`q9`,`suggestion`)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
         );
 
         return $stmt->execute([
-            'id_user'    => $userId,
-            'counter'    => $counter,
-            'q1'         => $answers['q1'] ?? '',
-            'q2'         => $answers['q2'] ?? '',
-            'q3'         => $answers['q3'] ?? '',
-            'q4'         => $answers['q4'] ?? '',
-            'q5'         => $answers['q5'] ?? '',
-            'q6'         => $answers['q6'] ?? '',
-            'q7'         => $answers['q7'] ?? '',
-            'q8'         => $answers['q8'] ?? '',
-            'q9'         => $answers['q9'] ?? '',
-            'suggestion' => $answers['suggestion'] ?? '',
+            $userId,
+            $counter,
+            $answers['q1'] ?? '',
+            $answers['q2'] ?? '',
+            $answers['q3'] ?? '',
+            $answers['q4'] ?? '',
+            $answers['q5'] ?? '',
+            $answers['q6'] ?? '',
+            $answers['q7'] ?? '',
+            $answers['q8'] ?? '',
+            $answers['q9'] ?? '',
+            $answers['suggestion'] ?? '',
         ]);
+    }
+
+    private function buildFilter(string $counter, ?string $awal, ?string $akhir, string $extra = ''): array
+    {
+        $where = "WHERE `counter` = ? {$extra}";
+        $params = [$counter];
+
+        if ($awal && $akhir) {
+            $where .= ' AND DATE(`time`) BETWEEN ? AND ?';
+            $params[] = $awal;
+            $params[] = $akhir;
+        }
+
+        return [$where, $params];
     }
 }
